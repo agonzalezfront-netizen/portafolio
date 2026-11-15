@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alberto González, product designer</title>
+<meta name="description" content="Product designer and founder. I direct a team of AI agents from the first spec to a verified release.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<!-- Para compartir (en inglés, el idioma por defecto; i18n.js los traduce en pantalla por su texto, los robots leen el HTML) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://agonzalez.viciusstudio.cl/">
+<meta property="og:title" content="Alberto González, product designer">
+<meta property="og:description" content="Product designer and founder. I direct a team of AI agents from the first spec to a verified release.">
+<meta property="og:image" content="https://agonzalez.viciusstudio.cl/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Portrait of Alberto González">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_LA">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Idiomas: el mismo HTML sirve los dos (i18n.js); /es/ es la dirección corta en español y lleva a ?lang=es -->
+<link rel="alternate" hreflang="en" href="https://agonzalez.viciusstudio.cl/">
+<link rel="alternate" hreflang="es" href="https://agonzalez.viciusstudio.cl/?lang=es">
+<link rel="alternate" hreflang="x-default" href="https://agonzalez.viciusstudio.cl/">
+<!-- Idioma (EN / ES): decide antes de pintar; el diccionario va en el mismo archivo (sin fetch: sirve por file://) -->
+<script src="i18n.js?v=20261114links"></script>
+<script>
+/* Decide antes de pintar si corre el enjambre: solo con JS y sin reduced-motion; corre en cada carga.
+   Sin ancla, la etapa de inicio (pantalla negra) empieza ya desde el primer cuadro.
+   Red de seguridad: si el script principal no llega (no marca sw-js), el contenido aparece igual a los 9 s.
+   La etapa ya no entra sola: espera a que el visitante elija Tour o bajar por su cuenta (ver INICIO en swarm.js). */
+(function(){var d=document.documentElement;d.classList.add('js');
+/* Cargar o recargar sin ancla reinicia la experiencia: el navegador no restaura el scroll y la página empieza arriba.
+   Con ancla, con atrás/adelante desde la caché (pageshow persisted, lo maneja swarm.js) o con reduced-motion, sigue como antes. */
+try{if(location.hash.length<2){if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);}}catch(e){}
+try{var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!rm){d.classList.add('swarm');if(location.hash.length<2)d.classList.add('sw-stage');
+setTimeout(function(){if(!d.classList.contains('sw-js'))d.classList.remove('swarm','sw-stage')},9000);}}catch(e){}
+/* Suave solo al hacer clic en un enlace interno: la llegada por ancla en la carga salta directo */
+var t=0;document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href^="#"]');
+if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function(){d.classList.remove('smooth-nav')},1500);});})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&family=Herr+Von+Muellerhoff&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="preload" as="image" href="img/alberto.webp" media="(min-width:768px)" fetchpriority="high">
+<link rel="preload" as="image" href="img/alberto-700.webp" media="(max-width:767px)" fetchpriority="high">
+<link rel="stylesheet" href="styles.css?v=20261114links">
+<script src="motion.js?v=20261114es" defer></script>
+<script src="swarm.js?v=20261114poster" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<button class="swarm-skip" type="button" aria-label="Skip the intro animation">Skip</button>
+
+<header class="top" data-build data-by="PO">
+  <div class="top__in">
+    <a class="top__name" href="#top"><span class="top__mark" aria-hidden="true">AG</span>Alberto González</a>
+    <nav class="top__nav" aria-label="Sections">
+      <a href="#cases">Work</a>
+      <a href="#how">Process</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <span class="lang-sw" role="group" aria-label="Language" data-i18n-aria-label="lang.group">
+      <button class="lang-sw__b" type="button" lang="en" data-lang-set="en" aria-label="English" aria-pressed="true" data-i18n-skip>EN</button>
+      <button class="lang-sw__b" type="button" lang="es" data-lang-set="es" aria-label="Español" aria-pressed="false" data-i18n-skip>ES</button>
+    </span>
+    <p class="top__status"><span class="dot dot--ok" aria-hidden="true"></span>Open to freelance work<button class="tour-replay top__replay" type="button" data-tour-replay hidden><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>Replay tour</button></p>
+  </div>
+</header>
+
+<main id="main">
+<!-- Hero: la palabra gigante va detrás del retrato (decorativa). data-order: orden en que la intro revela cada pieza;
+     data-drawer: quién dibuja el marco cuando no es el TL. -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero__in">
+    <div class="hero__stage">
+      <p class="hero__word" aria-hidden="true" data-rise data-build data-by="Dev 3" data-order="1">PORTFOLIO</p>
+      <figure class="hero__portrait" data-build data-by="Dev 8" data-verify="verif-5" data-order="2">
+        <picture>
+          <source media="(max-width:767px)" srcset="img/alberto-700.webp" width="431" height="700">
+          <img src="img/alberto.webp" width="861" height="1400" alt="Portrait of Alberto González" fetchpriority="high">
+        </picture>
+      </figure>
+    </div>
+
+    <div class="hero__intro" data-build data-by="Dev 3" data-order="3">
+      <p class="hero__hello">Hello, I’m</p>
+      <h1 id="hero-title" class="hero__title"><span>Alberto</span> <span>González</span></h1>
+      <p class="hero__role">Product designer &amp; founder</p>
+      <p class="hero__sub">I direct a team of AI agents from the first spec to a verified release. 8+ years in UX/UI and design systems for fintech and ecommerce.</p>
+      <p class="hero__loc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Chile, UTC-3 · Spanish native</p>
+      <div class="hero__act">
+        <a class="btn btn--primary" href="#cases">See the work</a>
+        <a class="btn btn--ghost" href="#contact">Contact</a>
+      </div>
+    </div>
+
+    <ul class="hero__stats" aria-label="In numbers" data-build data-by="Dev 3" data-drawer="Dev 3" data-order="4">
+      <li><b>8+</b><span>Years in product design</span></li>
+      <li><b>4</b><span>Products designed and built</span></li>
+      <li><b>6</b><span>Agent roles, one board</span></li>
+    </ul>
+
+    <p class="hero__note" data-build data-by="Dev 8" data-drawer="Dev 8" data-order="5"><span class="hero__note-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M12 9l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg></span><span>Agentic-first, with Claude Code and MCP every day.</span></p>
+  </div>
+</section>
+
+<div class="rest">
+<section class="room-sec" id="room" aria-labelledby="room-title">
+  <div class="sec-head" data-build data-by="PO">
+    <h2 id="room-title">The Command Room</h2>
+    <p class="sec-head__note">Where I direct the agents. A recreation with made-up sample data; the real board stays private.</p>
+  </div>
+
+  <figure class="app" aria-labelledby="room-cap">
+    <div class="app__top" data-build data-by="Dev 3">
+      <span class="ico-btn" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+      <span class="app__title">Factory</span>
+      <span class="chip chip--sample">sample data</span>
+      <span class="app__time">updated 09:41</span>
+    </div>
+    <div class="app__strip" data-build data-by="Dev 8">
+      <div class="strip"><span class="strip__t"><b>Release 2</b> · Kitchen view</span><span class="strip__n">7 of 9</span><span class="bar"><i style="width:78%"></i></span></div>
+      <p class="app__eta">On pace: the last two cards are in independent check.</p>
+    </div>
+
+    <div class="app__body">
+      <div class="app__main">
+        <div class="app__mode" data-build data-by="Dev 3">
+          <div class="mode" role="group" aria-label="Board view">
+            <button type="button" class="mode__b" aria-pressed="false" aria-controls="view-agents">Agents</button>
+            <button type="button" class="mode__b" aria-pressed="true" aria-controls="view-board">Board</button>
+          </div>
+        </div>
+
+        <ul class="kpis" aria-label="Today, sample data" data-build-items data-by="Dev 3,Dev 8,Dev 3">
+          <li class="kpi">
+            <span class="eyebrow">Cards verified</span>
+            <b class="kpi__v">12</b>
+            <span class="kpi__u">today</span>
+            <span class="kpi__p">30 days: 9 a day on average</span>
+            <span class="spark" aria-hidden="true"><i style="height:30%"></i><i style="height:45%"></i><i style="height:20%"></i><i style="height:55%"></i><i style="height:35%"></i><i style="height:8%"></i><i style="height:60%"></i><i style="height:40%"></i><i style="height:70%"></i><i style="height:50%"></i><i style="height:42%"></i><i style="height:64%"></i><i class="is-today" style="height:100%"></i></span>
+          </li>
+          <li class="kpi">
+            <span class="eyebrow">Returns per card</span>
+            <b class="kpi__v">0.3</b>
+            <span class="kpi__u">today</span>
+            <span class="kpi__p">30 days: 0.4</span>
+            <span class="spark" aria-hidden="true"><i style="height:50%"></i><i style="height:20%"></i><i style="height:0%"></i><i style="height:40%"></i><i style="height:70%"></i><i style="height:30%"></i><i style="height:10%"></i><i style="height:45%"></i><i style="height:25%"></i><i style="height:60%"></i><i style="height:35%"></i><i style="height:20%"></i><i class="is-today" style="height:38%"></i></span>
+          </li>
+          <li class="kpi">
+            <span class="eyebrow">Time to verify</span>
+            <b class="kpi__v">38<small>min</small></b>
+            <span class="kpi__u">today</span>
+            <span class="kpi__p">30 days: 44 min</span>
+            <span class="spark" aria-hidden="true"><i style="height:80%"></i><i style="height:65%"></i><i style="height:72%"></i><i style="height:58%"></i><i style="height:60%"></i><i style="height:66%"></i><i style="height:50%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:46%"></i><i class="is-today" style="height:40%"></i></span>
+          </li>
+        </ul>
+
+        <div class="app__grid">
+          <section class="pane board" aria-labelledby="board-title" data-build data-by="Dev 8" data-verify="verif-5">
+            <div class="pane__h">
+              <h3 id="board-title">Board</h3>
+              <ul class="board__count" aria-label="Board summary">
+                <li><b>3</b> <span data-i18n="board.n.verified">verified</span></li><li><b>1</b> <span data-i18n="board.n.check">in check</span></li><li><b>1</b> <span data-i18n="board.n.build">in build</span></li><li><b>1</b> <span data-i18n="board.n.spec">spec</span></li>
+              </ul>
+            </div>
+            <ol class="board__list" id="view-board">
+              <li class="row" data-state="verified">
+                <span class="st" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg></span>
+                <span class="row__t">Order button wording</span>
+                <span class="row__s" data-i18n="board.row.verified">verified</span><span class="who" style="--a:var(--ag-dev3)">Dev 3</span>
+              </li>
+              <li class="row" data-state="verified">
+                <span class="st" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg></span>
+                <span class="row__t">Kitchen view at 360&nbsp;px</span>
+                <span class="row__s" data-i18n="board.row.verified">verified</span><span class="who" style="--a:var(--ag-dev8)">Dev 8</span>
+              </li>
+              <li class="row" data-state="verified">
+                <span class="st" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg></span>
+                <span class="row__t">Menu contrast AA</span>
+                <span class="row__s" data-i18n="board.row.verified">verified</span><span class="who" style="--a:var(--ag-verif5)">verif-5</span>
+              </li>
+              <li class="row" data-state="check">
+                <span class="st" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3.5"/></svg></span>
+                <span class="row__t">Empty orders state</span>
+                <span class="row__s" data-i18n="board.row.check">in check</span><span class="who" style="--a:var(--ag-verif8)">verif-8</span>
+              </li>
+              <li class="row" data-state="build">
+                <span class="st" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z"/></svg></span>
+                <span class="row__t">Launch post draft</span>
+                <span class="row__s" data-i18n="board.row.build">in build</span><span class="who" style="--a:var(--ag-mkt)">Marketing</span>
+              </li>
+              <li class="row" data-state="spec">
+                <span class="st" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-dasharray="3 3"/></svg></span>
+                <span class="row__t">Owner weekly summary</span>
+                <span class="row__s" data-i18n="board.row.spec">spec</span><span class="who" style="--a:var(--ag-po)">PO</span>
+              </li>
+            </ol>
+            <ul class="agents" id="view-agents" hidden>
+              <li><span class="dot dot--ok"></span><span class="agents__n">Cortex</span><span class="agents__r">memory and coordination</span><span class="chip chip--run">working</span></li>
+              <li><span class="dot dot--ok"></span><span class="agents__n">PO</span><span class="agents__r">orders the board</span><span class="chip chip--ok">free</span></li>
+              <li><span class="dot dot--ok"></span><span class="agents__n">TL</span><span class="agents__r">technical plan</span><span class="chip chip--run">working</span></li>
+              <li><span class="dot dot--ok"></span><span class="agents__n">Dev 3, Dev 8</span><span class="agents__r">build in their own workspace</span><span class="chip chip--run">working</span></li>
+              <li><span class="dot dot--ok"></span><span class="agents__n">verif-5, verif-8</span><span class="agents__r">independent checks</span><span class="chip chip--warn">waiting</span></li>
+              <li><span class="dot dot--off"></span><span class="agents__n">Marketing</span><span class="agents__r">writes</span><span class="chip">asleep</span></li>
+            </ul>
+          </section>
+
+          <div class="app__side">
+            <section class="pane review" aria-labelledby="review-title" data-build data-by="PO">
+              <div class="pane__h"><h3 id="review-title">To review</h3><span class="chip chip--ok" aria-label="0 items">0</span></div>
+              <p class="review__empty">Nothing waits for your review.</p>
+              <p class="review__foot">2 cards still in independent check.</p>
+            </section>
+            <section class="pane happened" aria-labelledby="happened-title" data-build data-by="Cortex">
+              <div class="pane__h"><h3 id="happened-title">What happened</h3><span class="chip">24 h</span></div>
+              <ol class="events">
+                <li><span class="dot"></span><span class="events__t">Cortex saved the session notes<small><time>18:12</time> · Memory</small></span></li>
+                <li><span class="dot dot--warn"></span><span class="events__t">verif-8 sent one back with evidence<small><time>18:11</time> · Returned</small></span></li>
+                <li><span class="dot dot--ok"></span><span class="events__t">verif-5 passed 3/3 checks<small><time>18:09</time> · Verified</small></span></li>
+                <li><span class="dot"></span><span class="events__t">Dev 8 started the build<small><time>18:04</time> · Build</small></span></li>
+                <li><span class="dot"></span><span class="events__t">PO opened a card: weekly summary<small><time>18:02</time> · Spec</small></span></li>
+              </ol>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="app__rail" data-build data-by="Dev 3" aria-hidden="true">
+        <span class="rb"><svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg></span>
+        <span class="rb"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></span>
+        <span class="rb"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg></span>
+        <span class="rb rb--live"><span class="switch is-on"><i></i></span>Live</span>
+      </div>
+    </div>
+    <figcaption id="room-cap" class="sr-only">A recreation of my Command Room with made-up sample data: release progress, today’s numbers, the board with each task, its state and the agent working on it, what is waiting for my review and what happened recently.</figcaption>
+  </figure>
+</section>
+
+<section class="cases" id="cases" aria-labelledby="cases-title">
+  <div class="sec-head" data-build data-by="PO">
+    <h2 id="cases-title">Selected work</h2>
+    <p class="sec-head__note">Spec, build, then verified by a separate agent or shipped.</p>
+  </div>
+
+  <!-- Caso principal -->
+  <article class="card card--main" aria-labelledby="c1">
+    <ol class="rail" aria-label="Card states">
+      <li>Spec</li><li>Build</li><li>Verified</li>
+    </ol>
+    <div class="card__body">
+      <div class="card__text" data-build-items data-by="PO">
+        <h3 id="c1">The Command Room and the agent factory</h3>
+        <p class="problem"><span class="k">Problem</span>One person directing many AI agents loses track between sessions, and an agent that checks its own work is not a check.</p>
+        <p>I built a Command Room where I direct a team of AI agents. One board holds every decision with an id and the live state of each task. Every task follows a fixed path: spec, build, then an independent check by a separate agent before anything reaches me.</p>
+        <p>Each agent has a role. Cortex keeps the shared memory and coordinates, so each session knows what the last one did. The PO orders the board, the TL writes the technical plan, Devs build in their own workspace, verifiers check with evidence, and Marketing writes. There is also a voice channel, so I can direct the room without a keyboard.</p>
+        <dl class="meta">
+          <div><dt>role</dt><dd>Founder, product and system design</dd></div>
+          <div><dt>stack</dt><dd>Claude Code, MCP, Python, HTML/CSS/JS</dd></div>
+          <div><dt>builds</dt><dd>Kocino, my restaurant product</dd></div>
+        </dl>
+      </div>
+      <figure class="ticket" aria-labelledby="ticket-cap" data-build data-by="Dev 3" data-verify="verif-5">
+        <div class="ticket__head">
+          <span class="eyebrow">card</span>
+          <span class="chip chip--sample">sample data</span>
+        </div>
+        <h4 class="ticket__title">Order button wording</h4>
+        <div class="ticket__block">
+          <p class="eyebrow ticket__k">spec</p>
+          <p>The main button says what happens: “Place order”, not “Submit”. It stays disabled until the order is complete.</p>
+        </div>
+        <div class="ticket__block">
+          <p class="eyebrow ticket__k">verification, by a different agent</p>
+          <table class="matrix">
+            <thead><tr><th scope="col">Requirement</th><th scope="col">Evidence</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Label names the action</td><td>Screenshot at 390&nbsp;px</td><td><span class="chip chip--ok">pass</span></td></tr>
+              <tr><td>Disabled until complete</td><td>Test with an empty cart</td><td><span class="chip chip--ok">pass</span></td></tr>
+              <tr><td>Text contrast AA</td><td>Measured 7.1:1</td><td><span class="chip chip--ok">pass</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption id="ticket-cap" class="ticket__cap">Recreated card with made-up content. The real board stays private.</figcaption>
+      </figure>
+    </div>
+  </article>
+
+  <article class="card" aria-labelledby="c2">
+    <ol class="rail" aria-label="Card states"><li>Spec</li><li>Build</li><li>Verified</li></ol>
+    <div class="card__body">
+      <div class="card__text" data-build-items data-by="PO">
+        <h3 id="c2">Kocino, ordering and operations for restaurants</h3>
+        <p class="problem"><span class="k">Problem</span>Restaurants that sell through ordering apps pay a commission on every order and follow kitchen, delivery and cash in separate places.</p>
+        <p>Web orders go directly to the restaurant. One owner panel shows live orders for kitchen and delivery, the catalog, timing analytics and the day’s cash. I defined the product and the UX; the agents built it under my review.</p>
+        <dl class="meta">
+          <div><dt>pilot</dt><dd>June 2026</dd></div>
+          <div><dt>launch</dt><dd>November 2026</dd></div>
+          <div><dt>stack</dt><dd>Python back end, own design system</dd></div>
+        </dl>
+        <p class="case-act"><a class="btn btn--ghost case-act__b" href="https://kocino.cl/demo" target="_blank" rel="noopener"><span>See the live demo</span><span class="case-act__url">kocino.cl/demo</span><svg class="case-act__ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+      </div>
+      <div class="shots shots--pair" data-build data-by="Dev 8" data-verify="verif-8">
+        <figure class="phone">
+          <img src="img/kocino-order-options.webp" width="600" height="1298" loading="lazy" alt="Kocino menu: a sandwich with a required bread choice marked done, optional extras with counters and an Add button with the price.">
+          <figcaption>Ordering a dish with options</figcaption>
+        </figure>
+        <figure class="phone">
+          <img src="img/kocino-live-orders.webp" width="600" height="1298" loading="lazy" alt="Kocino owner panel: live orders, three flagged as needing attention, with kitchen and pickup states and times.">
+          <figcaption>Live orders in the owner panel</figcaption>
+        </figure>
+        <p class="shots__note">Demo store with sample data. The interface is in Spanish.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" aria-labelledby="c3">
+    <ol class="rail" aria-label="Card states"><li>Spec</li><li>Build</li><li>Shipped</li></ol>
+    <div class="card__body">
+      <div class="card__text" data-build-items data-by="PO">
+        <h3 id="c3">Pulsed, a platform for training organizations</h3>
+        <p class="problem"><span class="k">Problem</span>Training organizations in Chile need to follow each student and know in time who is falling behind.</p>
+        <p>Designed end to end, with a design system from day one. The platform follows each student and shows their progress status with a traffic light (good progress, little progress, insufficient, no progress), so tutors can act in time.</p>
+        <p>Four roles share it: admin, director, tutor and assistant. A communications radar lists the students to contact, most urgent first. The landing lives at <a class="link case-link" href="https://pulsed.cl" target="_blank" rel="noopener">pulsed.cl<span class="sr-only"> (opens in a new tab)</span></a>.</p>
+        <dl class="meta">
+          <div><dt>role</dt><dd>Product and UX/UI design, part of the front end</dd></div>
+          <div><dt>roles</dt><dd>admin, director, tutor, assistant</dd></div>
+          <div><dt>stack</dt><dd>React 19, Vite, Flask</dd></div>
+        </dl>
+        <p class="case-act"><a class="btn btn--ghost case-act__b" href="https://pulsed.cl" target="_blank" rel="noopener"><span>Visit the site</span><span class="case-act__url">pulsed.cl</span><svg class="case-act__ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+      </div>
+      <div class="shots shots--platform" data-build data-by="Dev 3" data-verify="verif-5">
+        <figure class="browser browser--wide">
+          <img src="img/pulsed-platform-gestion.webp" width="1400" height="671" loading="lazy" alt="Pulsed platform, director’s management view: totals for courses, students and tutors, alerts, students that need the director’s attention, and a card per course with its progress bar.">
+          <figcaption>Demo with made-up data. The interface is in Spanish; the product UI is named StudentHub.</figcaption>
+        </figure>
+        <ul class="thumbs" role="list" aria-label="More Pulsed screens" tabindex="0">
+          <li><figure>
+            <img src="img/pulsed-platform-students.webp" width="900" height="562" loading="lazy" alt="Student list where each student carries a progress status: good progress, little progress, insufficient or no progress.">
+            <figcaption>Each student’s progress status</figcaption>
+          </figure></li>
+          <li><figure>
+            <img src="img/pulsed-platform-radar.webp" width="900" height="562" loading="lazy" alt="Communications radar: escalated students first, then courses ordered by how many students need contact.">
+            <figcaption>Communications radar, most urgent first</figcaption>
+          </figure></li>
+          <li><figure>
+            <img src="img/pulsed-platform-tutor.webp" width="700" height="437" loading="lazy" alt="Tutor view: only the tutor’s own courses, with alerts and each course’s progress bar.">
+            <figcaption>The tutor’s view of their courses</figcaption>
+          </figure></li>
+          <li><a class="thumbs__link" href="https://pulsed.cl" target="_blank" rel="noopener"><figure>
+            <img src="img/pulsed-landing.webp" width="1200" height="750" loading="lazy" alt="Pulsed landing page: a headline about managing a training organization with precision, next to a control panel preview.">
+            <figcaption>The pulsed.cl landing<svg class="case-act__ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5"/></svg><span class="sr-only"> (opens in a new tab)</span></figcaption>
+          </figure></a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" aria-labelledby="c4">
+    <ol class="rail" aria-label="Card states"><li>Spec</li><li>Build</li><li data-i18n="rail.inuse">In use</li></ol>
+    <div class="card__body">
+      <div class="card__text" data-build-items data-by="PO">
+        <h3 id="c4">Sales Command Center, inbox triage with AI</h3>
+        <p class="problem"><span class="k">Problem</span>Sales email arrives mixed with everything else, and the next step gets lost.</p>
+        <p>A mobile PWA that sorts incoming email into categories with Claude and shows a pipeline view, with PIN and biometric login.</p>
+        <dl class="meta">
+          <div><dt>stack</dt><dd>React 19, TypeScript, Vite, FastAPI</dd></div>
+        </dl>
+        <p class="case-act case-act--none">Private tool: no public demo.</p>
+      </div>
+      <figure class="inbox" aria-labelledby="inbox-cap" data-build data-by="Dev 8" data-verify="verif-8">
+        <div class="inbox__head"><span>Inbox</span><span class="chip chip--sample">sample data</span></div>
+        <ul class="inbox__cats" aria-label="Categories">
+          <li class="is-on">Leads 2</li><li>Follow-up 1</li><li>Other 4</li>
+        </ul>
+        <ul class="inbox__list">
+          <li><span class="from">Sample sender A</span><span class="subj">Can we book a demo next week?</span><span class="cat">lead</span></li>
+          <li><span class="from">Sample sender B</span><span class="subj">Question about the plans</span><span class="cat">lead</span></li>
+          <li><span class="from">Sample sender C</span><span class="subj">Re: the proposal we discussed</span><span class="cat cat--f">follow-up</span></li>
+        </ul>
+        <figcaption id="inbox-cap" class="ticket__cap">Recreation with made-up email. The real inbox holds other people’s mail, so it is not shown.</figcaption>
+      </figure>
+    </div>
+  </article>
+
+</section>
+
+<!-- Más trabajo: proyectos publicados en Behance. Portadas dentro de un marco uniforme; la de fondo blanco (BCI Plus)
+     va como lámina apoyada sobre la superficie; B2B, cuya portada es solo texto, es una tarjeta tipográfica. -->
+<section class="more" id="more" aria-labelledby="more-title">
+  <div class="sec-head" data-build data-by="PO">
+    <h2 id="more-title">More work</h2>
+    <p class="sec-head__note">Earlier client and employer work, on Behance.</p>
+  </div>
+  <ul class="works" data-build-items data-by="Dev 3,Dev 8,Dev 3">
+    <li><a class="work" href="https://www.behance.net/gallery/233340257/Follow-Up" target="_blank" rel="noopener">
+      <span class="work__cover"><img src="img/behance/follow-up.webp" width="808" height="632" loading="lazy" alt="Follow Up cover: three phones in dark mode showing sign-in, indicator tables and a sales chart."></span>
+      <div class="work__body">
+        <div class="work__row"><h3 class="work__t">Follow Up</h3><span class="work__y">2025</span></div>
+        <span class="work__co">Follow Up</span>
+        <span class="work__d">Prototype for their existing app: a mobile-first redesign of desktop data tables to compare results between retail stores.</span>
+      </div>
+    </a></li>
+    <li><a class="work" href="https://www.behance.net/gallery/216353169/Falabella-Finanzas" target="_blank" rel="noopener">
+      <span class="work__cover"><img src="img/behance/falabella-finanzas.webp" width="808" height="632" loading="lazy" alt="Falabella Finanzas cover: a laptop showing the Falabella logo on a dark concrete background, next to a fragment of a tablet interface."></span>
+      <div class="work__body">
+        <div class="work__row"><h3 class="work__t">Falabella Finanzas</h3><span class="work__y">2025</span></div>
+        <span class="work__co">Falabella</span>
+        <span class="work__d">UX/UI redesign of the design system behind an internal financial reconciliation tool.</span>
+      </div>
+    </a></li>
+    <li><a class="work" href="https://www.behance.net/gallery/217671569/BCI-Plus-UXUI" target="_blank" rel="noopener">
+      <span class="work__cover work__cover--sheet"><img src="img/behance/bci-plus-uxui.webp" width="808" height="632" loading="lazy" alt="BCI Plus UX report cover: the BCI Plus logo and the words Design Thinking methodology on a white background."></span>
+      <div class="work__body">
+        <div class="work__row"><h3 class="work__t">BCI Plus UX/UI</h3><span class="work__y">2025</span></div>
+        <span class="work__co">BCI</span>
+        <span class="work__d">A UX report for BCI Plus, a cashback program: personas, interviews and analytics.</span>
+      </div>
+    </a></li>
+    <li><a class="work" href="https://www.behance.net/gallery/233344127/B2B" target="_blank" rel="noopener">
+      <span class="work__cover work__cover--type" aria-hidden="true"><span class="work__cat">E-commerce prototype</span><span class="work__big">B2B</span></span>
+      <div class="work__body">
+        <div class="work__row"><h3 class="work__t">B2B</h3><span class="work__y">2025</span></div>
+        <span class="work__co">B2B Network</span>
+        <span class="work__d">Prototype of an e-commerce store: a catalog for sellers to browse and share products with clients, on desktop and mobile.</span>
+      </div>
+    </a></li>
+    <li><a class="work" href="https://www.behance.net/gallery/180637937/Santander-Work-Caf" target="_blank" rel="noopener">
+      <span class="work__cover"><img src="img/behance/santander-work-cafe.webp" width="808" height="632" loading="lazy" alt="Santander Work Café cover: the Work Café Santander logo in white and red on black."></span>
+      <div class="work__body">
+        <div class="work__row"><h3 class="work__t">Santander Work Café</h3><span class="work__y">2023</span></div>
+        <span class="work__co">Santander</span>
+        <span class="work__d">UX/UI for Work Café, the bank’s café and coworking spaces.</span>
+      </div>
+    </a></li>
+    <li><a class="work" href="https://www.behance.net/gallery/168704425/Entel-TV" target="_blank" rel="noopener">
+      <span class="work__cover"><img src="img/behance/entel-tv.webp" width="808" height="632" loading="lazy" alt="Entel TV cover: the Entel TV logo on dark blue."></span>
+      <div class="work__body">
+        <div class="work__row"><h3 class="work__t">Entel TV</h3><span class="work__y">2023</span></div>
+        <span class="work__co">Entel</span>
+        <span class="work__d">UX research and design for Entel’s TV service.</span>
+      </div>
+    </a></li>
+  </ul>
+</section>
+
+<section class="how" id="how" aria-labelledby="how-title">
+  <div class="sec-head" data-build data-by="PO">
+    <h2 id="how-title">How I work</h2>
+    <p class="sec-head__note">The same path for every task, whether a person or an agent builds it.</p>
+  </div>
+  <div class="flow">
+  <ol class="steps" data-build-items data-by="Dev 3,Dev 8">
+    <li class="step">
+      <span class="step__n">1<b aria-hidden="true">1</b></span>
+      <span class="step__seg" aria-hidden="true"><i></i></span>
+      <span class="step__lb" aria-hidden="true">Spec</span>
+      <h3>Spec</h3>
+      <p>Each task starts as a card with the problem and its acceptance criteria. The technical plan is written before anyone builds.</p>
+    </li>
+    <li class="step">
+      <span class="step__n">2<b aria-hidden="true">2</b></span>
+      <span class="step__seg" aria-hidden="true"><i></i></span>
+      <span class="step__lb" aria-hidden="true">Build</span>
+      <h3>Build</h3>
+      <p>A developer agent builds in its own workspace, with the design system and automatic checks that run on every change.</p>
+    </li>
+    <li class="step">
+      <span class="step__n">3<b aria-hidden="true">3</b></span>
+      <span class="step__seg" aria-hidden="true"><i></i></span>
+      <span class="step__lb" aria-hidden="true">Verify</span>
+      <h3>Independent verification</h3>
+      <p>A fresh agent that did not build it checks every requirement and attaches evidence. Work that fails goes back, and repeated returns escalate.</p>
+    </li>
+    <li class="step">
+      <span class="step__n">4<b aria-hidden="true">4</b></span>
+      <span class="step__lb" aria-hidden="true">Ship</span>
+      <h3>Review and ship</h3>
+      <p>I review at the end of each stage. Then it goes to staging, and from there to production.</p>
+    </li>
+  </ol>
+  </div>
+  <!-- En el Tour «See it in motion» se arma por piezas (pedido del dueño, 14-11): primero el encabezado (PO) y luego el póster en
+       cuatro unidades encadenadas por data-order dentro de data-seq: titular (Marketing lo escribe) → trazo (Dev 3; se dibuja) →
+       tira de las 8 escenas (fila) → play (Dev 8, con verificador). Sin Tour todo aparece entero, como siempre. -->
+  <figure class="fab" id="fabrica" data-seq aria-labelledby="fab-t">
+    <figcaption class="fab__head" data-build data-by="PO">
+      <h3 class="fab__t" id="fab-t">See it in motion</h3>
+      <p class="fab__note">The same path as a short animation, with a fail, a fix and the lesson it leaves.</p>
+    </figcaption>
+    <div class="player" id="seq-box" lang="en">
+      <div class="stage fab__stage" id="seq">
+        <!-- Póster C «Titular» (elegido por el dueño el 14-11, ver _revision/poster-propuestas/): titular de tres golpes,
+             trazo de fondo que termina en el play y tira de las 8 escenas con el único fallo en ámbar. Decorativo (aria-hidden);
+             el único enganche es el <button id="fab-go">, igual que antes. -->
+        <div class="poster pc" aria-hidden="true">
+          <svg class="pc__trace" viewBox="0 360 1312 360" preserveAspectRatio="none" focusable="false" data-build data-by="Dev 3" data-order="2" data-draw data-behind=".pc__title">
+            <path pathLength="1" d="M-20 700 C 260 700 380 640 560 640 S 860 690 960 600 C 1040 528 1000 452 930 470 C 860 488 900 600 1010 580 C 1120 560 1180 400 1312 378" fill="none" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="pc__title" data-build data-by="Marketing" data-order="1">
+            <p class="pc__h"><span>One task.</span> <span>One fail.</span> <span>One lesson.</span></p>
+            <p class="pc__sub">Follow it from spec to production.</p>
+          </div>
+          <ol class="pc__strip" data-build-items data-by="Dev 3,Dev 8" data-order="3">
+            <li><span>Spec</span></li><li><span>Order + plan</span></li><li><span>Team + room</span></li><li><span>Build + seal</span></li>
+            <li class="is-fail"><span>Check + return</span><em>fails once</em></li><li><span>How are we doing?</span></li><li><span>Review + ship</span></li><li><span>Lesson</span></li>
+          </ol>
+        </div>
+        <button class="fab__go" type="button" id="fab-go" aria-describedby="fab-meta" data-build data-by="Dev 8" data-verify="verif-8" data-order="4"><span class="fab__disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg></span><span class="fab__txt"><span class="fab__lbl">Play</span><span class="fab__meta" id="fab-meta">41 s · with sound</span></span></button>
+      </div>
+      <p class="fab__rm" id="fab-rm">Reduced motion is on, so this is a still view. Press play if you want to watch it anyway.</p>
+    </div>
+  </figure>
+</section>
+
+<section class="bg" id="background" aria-labelledby="bg-title">
+  <div class="sec-head" data-build data-by="PO">
+    <h2 id="bg-title">Background</h2>
+  </div>
+  <ol class="timeline" data-build-items data-by="Marketing">
+    <li><span class="when">2025 to now</span><span class="org">SENCE</span><span class="what">UX/UI and AI bootcamp instructor and mentor</span></li>
+    <li class="timeline__feat"><span class="when">2023 to 2025</span><span class="org">Falabella</span><span class="what">Product designer. Led a design system to unify internal tools and platforms, with reusable components, working with product managers and engineers.<span class="chip chip--ok timeline__ship" data-i18n="bg.shipped">shipped</span></span></li>
+    <li><span class="when">2023</span><span class="org">Adereso</span><span class="what">Designer and developer. Worked on Salsa, an AI assistant</span></li>
+    <li><span class="when">2021 to 2022</span><span class="org">BCI</span><span class="what">UI and visual designer</span></li>
+    <li><span class="when">2020 to 2021</span><span class="org">Santander Work Café</span><span class="what">UX/UI designer. Led the design cell</span></li>
+    <li><span class="when">2018 to 2020</span><span class="org">LATAM Airlines</span><span class="what">UI designer and front end, through Kiteknology. Web interfaces and animations for a multi-platform application.</span></li>
+  </ol>
+  <h3 class="skills__t">Skills</h3>
+  <!-- Habilidades en grupos (pedido del dueño, 14-11 19:22): primero IA y agentes, con el acento cian; lista exacta aprobada por Cortex.
+       Cada lista es una fila del Tour (data-build-items): sus chips se arman como las demás filas. -->
+  <div class="skills-g skills-g--ai">
+    <h4 class="skills-g__t">AI and agents</h4>
+    <p class="skills-g__k">What I do</p>
+    <ul class="skills skills--ai" data-build-items data-by="Marketing">
+      <li>Multi-agent orchestration (PO, TL, Dev, verifier)</li><li>Specs and acceptance criteria for agents</li><li>Independent verification by a second agent</li><li>Guardrails, sensors and mutation testing</li><li>Persistent memory for agents</li><li>Browser automation and visual QA</li><li>Voice interfaces (TTS and dictation)</li>
+    </ul>
+    <p class="skills-g__k">With</p>
+    <ul class="skills skills--ai" data-build-items data-by="Marketing">
+      <li>Claude Code (skills, hooks, subagents, workflows)</li><li>MCP servers and connectors</li><li>Local models with Ollama</li><li>Playwright</li><li>Git worktrees</li>
+    </ul>
+  </div>
+  <div class="skills-g">
+    <h4 class="skills-g__t">Design and product</h4>
+    <ul class="skills" data-build-items data-by="Marketing">
+      <li>Product Design</li><li>UX Design</li><li>UI Design</li><li>Design Systems</li><li>Prototyping</li><li>Figma</li><li>Usability Testing</li><li>Product Management</li><li>Scrum</li><li>Lean UX</li>
+    </ul>
+    <h4 class="skills-g__t">Code</h4>
+    <ul class="skills" data-build-items data-by="Marketing">
+      <li>React</li><li>TypeScript</li><li>Python</li>
+    </ul>
+  </div>
+</section>
+
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <h2 id="contact-title" data-build data-by="Marketing">Contact</h2>
+  <p class="contact__lead" data-build data-by="Marketing">Open to product design work with teams building with AI.</p>
+  <ul class="links" data-build-items data-by="Marketing">
+    <li><a href="mailto:agonzalez@viciusstudio.cl"><span>Email</span><span class="links__v">agonzalez@viciusstudio.cl</span></a></li>
+    <li><a href="https://wa.me/56999543156" target="_blank" rel="noopener"><span>WhatsApp</span><span class="links__v">+56 9 9954 3156</span></a></li>
+    <li><a href="https://www.linkedin.com/in/agonzalez-front" target="_blank" rel="noopener"><span>LinkedIn</span><span class="links__v">in/agonzalez-front</span></a></li>
+    <li><a href="https://www.behance.net/agonzalezfront" target="_blank" rel="noopener"><span>Behance</span><span class="links__v">agonzalezfront</span></a></li>
+    <li><a href="https://github.com/agonzalezfront-netizen" target="_blank" rel="noopener"><span>GitHub</span><span class="links__v">agonzalezfront-netizen</span></a></li>
+  </ul>
+</section>
+</div>
+</main>
+
+<footer class="foot" data-build data-plan="content" data-by="Cortex">
+  <p>Built by me and my agents, then checked by a separate one.</p>
+  <button class="tour-replay foot__replay" type="button" data-tour-replay hidden><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>Replay tour</button>
+</footer>
+<script>
+/* Selector Agents / Board de la Sala recreada: cambia la vista del tablero. Sin JS el selector no se muestra y queda el Board. */
+(function(){var bs=document.querySelectorAll('.mode__b');Array.prototype.forEach.call(bs,function(b){b.addEventListener('click',function(){
+Array.prototype.forEach.call(bs,function(o){var on=o===b;o.setAttribute('aria-pressed',on?'true':'false');
+var v=document.getElementById(o.getAttribute('aria-controls'));if(v)v.hidden=!on;});});});})();
+</script>
+<script>
+/* «See it in motion»: la pieza de la Fábrica (fabrica/fabrica.js, copia de _revision/storyboard-fabrica.js) se baja SOLO al apretar
+   reproducir: antes no hay JS ni CSS de la pieza, ni mp3, ni AudioContext. El contexto de audio nace dentro del clic y se le entrega a la pieza.
+   Nunca arranca sola (ni al entrar en pantalla ni cuando pasa el Tour); al reproducir avisa «fabrica:play» y el Tour queda en pausa.
+   Funciona igual por http y por file:// (script clásico insertado, sin fetch ni módulos; con file:// la voz suena por <audio>).
+   Teléfono (≤ 699 px): la pieza se ve en la página con una cámara que la recorre (fabrica.js); el póster angosto lo pone styles.css. */
+(function(){var fig=document.getElementById('fabrica'),go=document.getElementById('fab-go');if(!fig||!go)return;
+var box=document.getElementById('seq-box'),stage=document.getElementById('seq'),VER='20261114d';
+var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var I=window.__i18n,tr=function(k,en){return I?I.t(k):en;};
+if(rm){fig.classList.add('fab--rm');go.querySelector('.fab__lbl').textContent=tr('fab.anyway','Watch anyway');}
+var state=0;
+function build(){
+  stage.setAttribute('tabindex','0');stage.setAttribute('role','img');
+  stage.insertAdjacentHTML('afterbegin','<div class="cap"><span class="cap__m"><span class="cap__in"></span></span></div><span class="sc-tag"></span>');
+  box.insertAdjacentHTML('beforeend','<div class="sbar"><div class="sbar__t"><span id="seq-lbl"></span><span id="seq-time"></span></div><div class="sbar__s" id="seq-segs" role="group"></div></div>'+
+  '<p class="vh" id="seq-live" aria-live="polite"></p><div class="ctrl ctrl--seq" role="group" id="seq-ctrl">'+
+  '<button class="play" type="button" id="seq-play">'+tr('fab.play','Play')+'</button><button class="play play--g play--i" type="button" id="seq-prev">'+tr('fab.ui.prev','Previous scene')+'</button>'+
+  '<button class="play play--g play--i" type="button" id="seq-next">'+tr('fab.ui.next','Next scene')+'</button><button class="play play--g" type="button" id="seq-restart">'+tr('fab.ui.replay','Replay')+'</button>'+
+  '<button class="play" type="button" id="seq-see8" hidden>'+tr('fab.ui.see8','See the 8 scenes')+'</button><span class="ctl-pair"><button class="play play--g" type="button" id="seq-step" aria-pressed="false">'+tr('fab.ui.step','Step by step')+'</button>'+
+  '<button class="snd-btn" type="button" id="seq-sound" aria-pressed="false" aria-label="'+tr('fab.ui.sound','Sound')+'" aria-describedby="seq-sound-note"></button><span class="snd-note" id="seq-sound-note">'+tr('fab.ui.sndOff','sound off')+'</span></span><span id="seq-lang"></span></div>');
+}
+function fail(){state=0;fig.classList.remove('is-loading');go.removeAttribute('aria-busy');}
+function load(cb){
+  var n=2,done=function(){if(--n===0)cb();};
+  var l=document.createElement('link');l.rel='stylesheet';l.href='fabrica/fabrica.css?v='+VER;l.onload=done;l.onerror=done;document.head.appendChild(l);
+  var s=document.createElement('script');s.src='fabrica/fabrica.js?v='+VER;s.onload=done;s.onerror=fail;document.body.appendChild(s);
+}
+go.addEventListener('click',function(){
+  if(state!==0)return;
+  /* dentro del gesto: el contexto de audio (los navegadores exigen el clic para el sonido) */
+  var E=window.__fabricaEmbed=window.__fabricaEmbed||{base:'fabrica/',lang:'en'};E.lang=I?I.lang:E.lang;   /* la pieza arranca en el idioma del sitio */
+  try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!E.used){E.ctx=new AC();E.used=1;if(E.ctx.resume)E.ctx.resume().catch(function(){});}}catch(e){}
+  state=1;fig.classList.add('is-loading');go.setAttribute('aria-busy','true');build();
+  load(function(){if(!window.__sb){fail();return;}state=2;fig.classList.remove('is-loading');fig.classList.add('is-on');go.removeAttribute('aria-busy');go.hidden=true;
+    window.__sb.start();var b=document.getElementById('seq-play');if(b)b.focus({preventScroll:true});});
+});})();
+</script>
+<script>/* Idioma: traduce el documento ya armado y recién entonces lo muestra (ver i18n.js) */window.__i18n&&window.__i18n.ready();</script>
+</body>
+</html>

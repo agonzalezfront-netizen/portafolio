@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://agonzalez.viciusstudio.cl/sitemap.xml

@@ -1,0 +1,758 @@
+/* Sala de Mando: tokens en un solo lugar, tomados del código de la Sala real (_revision/sala-lenguaje-visual.md).
+   Capas: --bg (página) → --surface (tarjeta) → --surface-2 (elemento dentro de tarjeta). Separa el borde, no la sombra.
+   Acento ÚNICO: cian. El verde (--ok), el ámbar (--warn) y el rojo solo dicen estado. */
+:root{
+  --black:#000000; --bg:#0B0F14; --surface:#121821; --surface-2:#1A222D; --surface-ph:#0E141B; --line:#243040;
+  --text:#E8EDF2; --muted:#93A1B0;
+  --cyan:#00E5FF; --cyan-line:#1b5663; --cyan-ink:#0B0F14;
+  --ok:#00FF8A; --ok-line:#1f5a3a; --warn:#FFD600; --warn-line:#6a5a12; --err:#FF6B6B;
+  /* colores de agente: solo en etiquetas de agente y cursores */
+  --ag-cortex:#5B8DEF; --ag-po:#7FD8A8; --ag-tl:#00E5FF; --ag-dev3:#B69CFF; --ag-dev8:#E8C95A;
+  --ag-verif5:#F2A0C8; --ag-verif8:#7FE7FF; --ag-mkt:#FF9F43;
+  --f-display:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-body:Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px; --s-8:72px; --s-9:120px;
+  --r-xs:4px; --r-sm:8px; --r:12px; --r-lg:16px; --r-pill:999px;
+  --shadow-float:0 6px 20px rgba(0,0,0,.45);
+  --touch:44px; --gutter:16px; --max:1280px; --top-h:60px;
+  --ease:cubic-bezier(.4,0,.2,1); --dur:150ms;
+}
+*,*::before,*::after{box-sizing:border-box}
+/* Desplazamiento suave solo tras un clic en un enlace interno (clase puesta por el script del <head>);
+   nunca en la llegada por ancla ni en saltos de scroll. */
+html{-webkit-text-size-adjust:100%}
+html.smooth-nav{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html.smooth-nav{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--f-body);
+  overflow-wrap:break-word;-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+h1,h2,h3,h4{margin:0;font-family:var(--f-display);font-weight:600;letter-spacing:-.01em;line-height:1.15;text-wrap:balance}
+p{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+time,.num{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:var(--r-sm)}
+
+/* Etiqueta en mayúsculas de la Sala */
+.eyebrow{font:600 11px/1.3 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* Chip de la Sala: 22 px, borde por estado */
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 var(--s-2);border-radius:var(--r-pill);white-space:nowrap;
+  font:600 11px/1 var(--f-display);color:var(--muted);border:1px solid var(--line);background:var(--surface-2);font-variant-numeric:tabular-nums}
+.chip--ok{color:var(--ok);border-color:var(--ok-line)}
+.chip--run{color:var(--cyan);border-color:var(--cyan-line)}
+.chip--warn{color:var(--warn);border-color:var(--warn-line)}
+.chip--sample{color:var(--muted);border-style:dashed;background:transparent}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cyan);flex:none}
+.dot--ok{background:var(--ok)} .dot--warn{background:var(--warn)}
+.dot--off{background:transparent;border:2px solid var(--muted)}
+/* Interruptor «Live» */
+.switch{position:relative;display:inline-block;width:32px;height:18px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--line);flex:none}
+.switch i{position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--muted)}
+.switch.is-on{background:var(--ok);border-color:var(--ok)}
+.switch.is-on i{left:16px;background:var(--bg)}
+/* Barra de avance */
+.bar{display:block;height:8px;border-radius:var(--r-pill);background:var(--surface-2);overflow:hidden;flex:1 1 120px}
+.bar i{display:block;height:100%;border-radius:inherit;background:var(--cyan)}
+
+.skip-link{position:absolute;left:var(--gutter);top:-80px;z-index:80;background:var(--cyan);color:var(--cyan-ink);
+  display:flex;align-items:center;min-height:44px;padding:0 var(--s-4);border-radius:var(--r-pill);font:600 15px/1 var(--f-display);text-decoration:none}
+.skip-link:focus{top:var(--s-3)}
+
+/* Botones en píldora */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 var(--s-5);border-radius:var(--r-pill);
+  font:600 15px/1 var(--f-display);text-decoration:none;white-space:nowrap;transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.btn--primary{background:var(--cyan);color:var(--cyan-ink);border:1px solid var(--cyan)}
+.btn--primary:hover{background:color-mix(in srgb,var(--cyan) 85%,#fff)}
+.btn--ghost{border:1px solid var(--line);color:var(--text);background:var(--surface)}
+.btn--ghost:hover{border-color:var(--cyan)}
+
+/* ---------- Barra superior (como la de la Sala) ---------- */
+/* La barra va sobre el hero, así que es negra como él */
+.top{position:relative;z-index:40;background:var(--black);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,var(--black))}
+.top__in{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);max-width:var(--max);margin:0 auto;
+  min-height:var(--top-h);padding:0 var(--gutter)}
+.top__name{display:flex;align-items:center;gap:var(--s-3);min-height:var(--touch);font:600 16px/1 var(--f-display);text-decoration:none;white-space:nowrap}
+.top__mark{display:grid;place-items:center;width:36px;height:36px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);
+  font:700 13px/1 var(--f-display);letter-spacing:.02em;color:var(--cyan)}
+.top__nav{display:flex;gap:2px}
+.top__nav a{min-height:var(--touch);display:flex;align-items:center;padding:0 var(--s-2);border-radius:var(--r);
+  font:500 14px/1 var(--f-display);color:var(--muted);text-decoration:none;transition:color var(--dur) var(--ease)}
+.top__nav a:hover{color:var(--text)}
+.top__in{flex-wrap:wrap}
+.top__nav{margin-left:auto}
+/* estado de disponibilidad: en móvil, franja fina propia bajo la barra */
+.top__status{flex:1 0 100%;display:flex;align-items:center;justify-content:flex-end;gap:var(--s-2);min-height:32px;margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter);
+  border-top:1px solid color-mix(in srgb,var(--line) 70%,var(--black));font:500 12px/1 var(--f-display);color:var(--text);white-space:nowrap}
+@media (max-width:420px){.top__name{font-size:0;gap:0}.top__name .top__mark{font-size:13px}}
+/* Selector de idioma EN | ES: un solo idioma para la página y para «See it in motion» (i18n.js).
+   Píldora de dos botones con el mismo lenguaje que «Replay tour»: 32 px a la vista, zona táctil de 44 × 44 px.
+   El idioma activo se marca con relleno y texto claro (aria-pressed), no solo con color. */
+.lang-sw{display:inline-flex;align-items:center;flex:none;padding:1px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface)}
+.lang-sw__b{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:var(--touch);height:30px;margin:0;padding:0 var(--s-2);
+  border:0;border-radius:var(--r-pill);background:transparent;color:var(--muted);font:600 12px/1 var(--f-display);letter-spacing:.04em;cursor:pointer;
+  transition:color var(--dur) var(--ease),background-color var(--dur) var(--ease)}
+.lang-sw__b::before{content:"";position:absolute;inset:-7px 0}
+.lang-sw__b:hover{color:var(--text)}
+.lang-sw__b[aria-pressed="true"]{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--cyan-line);cursor:default}
+.lang-sw__b:focus-visible{outline-offset:1px;border-radius:var(--r-pill)}
+/* mientras i18n.js traduce (solo si el idioma no es el del HTML): nada se pinta en el idioma equivocado */
+.i18n-hold body{visibility:hidden}
+/* teléfono y tablet angosta: el selector baja a su propia fila, alineado a la derecha como la navegación y el estado */
+@media (max-width:767px){.lang-sw{margin-left:auto}}
+/* tablet (768 a 1023 px): con el selector, nombre + navegación + idioma + estado ya no caben en una fila sin partir; el estado
+   vuelve a la franja fina bajo la barra, como en el teléfono (antes cabía justo en inglés) */
+@media (min-width:768px) and (max-width:1023px){
+  .top__in .top__status{flex:1 0 100%;min-height:32px;margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter);border-left:0;
+    border-top:1px solid color-mix(in srgb,var(--line) 70%,var(--black))}
+}
+
+/* ---------- Hero ----------
+   Composición de cartel: la palabra PORTFOLIO de borde a borde arriba, rellena en cian que se funde al negro;
+   el retrato por delante, al centro; nombre abajo a la izquierda, cifras abajo a la derecha, una frase a media altura.
+   Anton solo en la palabra y en el nombre. Móvil: palabra y retrato arriba, el resto debajo. */
+.hero{position:relative;isolation:isolate;overflow:hidden;background:var(--black);
+  --f-poster:Anton,"Arial Narrow",Impact,sans-serif;
+  /* medidas de Anton (canvas): la tinta de «PORTFOLIO» va de 0,03 em a 3,80 em y mide 0,88 em de alto;
+     --word-sy estira la palabra en vertical hasta ≈56 % del alto del hero */
+  --word-w:3.78; --word-sy:2.3}
+/* en español la palabra es PORTAFOLIO: tinta 1,1234 veces más ancha (Anton, medida en canvas); se achica en ancho y se estira
+   lo mismo en alto, así ocupa exactamente el mismo cartel */
+:root[lang="es"] .hero{--word-k:1.1234}
+.hero__in{position:relative;max-width:var(--max);margin:0 auto;padding:0 var(--gutter) var(--s-6);display:grid}
+.hero__stage{position:relative;height:clamp(440px,124vw,580px);container-type:inline-size}
+.hero__word{position:absolute;z-index:0;left:0;top:var(--s-4);margin:0;white-space:nowrap;pointer-events:none;
+  font:400 calc(100cqi / (var(--word-w) * var(--word-k,1)))/.9 var(--f-poster);letter-spacing:0;text-transform:uppercase;
+  transform:translateX(-.03em) scaleY(calc(var(--word-sy) * var(--word-k,1)));transform-origin:0 0;
+  background:linear-gradient(180deg,#00E5FF 0%,#00D2EC 24%,#00A9C4 42%,#03606F 58%,#022A33 76%,#000 92%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero__portrait{position:absolute;z-index:1;left:50%;top:96px;margin:0;height:calc(100% - 40px);aspect-ratio:861/1400;transform:translateX(-50%)}
+.hero__portrait picture,.hero__portrait img{display:block;width:100%;height:100%;object-fit:contain;object-position:bottom center}
+.hero__portrait img{-webkit-mask-image:linear-gradient(180deg,#000 56%,transparent 86%);mask-image:linear-gradient(180deg,#000 56%,transparent 86%)}
+
+.hero__intro{position:relative;z-index:2;margin-top:-72px}
+.hero__hello{font:400 56px/.9 "Herr Von Muellerhoff",var(--f-body);color:var(--text);margin-bottom:var(--s-1)}
+.hero__title{font:400 clamp(60px,17vw,92px)/.94 var(--f-poster);letter-spacing:.005em;text-transform:uppercase;color:#fff}
+.hero__title span{display:block}
+/* la tilde de la Á sube 0,25 em sobre las mayúsculas de Anton: la segunda línea baja lo justo para que no toque la R */
+.hero__title span+span{margin-top:.22em}
+.hero__role{margin-top:var(--s-3);font:600 14px/1.3 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.hero__sub{margin-top:var(--s-3);color:var(--muted);font-size:15px;line-height:1.55;max-width:38ch}
+.hero__loc{display:flex;align-items:center;gap:var(--s-2);margin-top:var(--s-3);font:500 13px/1.3 var(--f-display);color:var(--muted)}
+.hero__loc svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--cyan);stroke-width:1.8}
+.hero__act{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-5)}
+
+.hero__stats{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:var(--s-6);border-top:1px solid var(--line)}
+.hero__stats li{display:grid;align-content:start;gap:var(--s-1);padding:var(--s-3) var(--s-2) 0 0}
+.hero__stats li+li{padding-left:var(--s-3);border-left:1px solid var(--line)}
+.hero__stats b{font:600 32px/1 var(--f-display);letter-spacing:-.02em;color:var(--cyan);font-variant-numeric:tabular-nums}
+.hero__stats span{font:600 11px/1.35 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.hero__note{position:relative;z-index:2;display:flex;align-items:center;gap:var(--s-3);margin-top:var(--s-5);font-size:14px;line-height:1.45;color:var(--text);max-width:30ch}
+.hero__note-ico{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--cyan-line)}
+.hero__note-ico svg{width:18px;height:18px;fill:none;stroke:var(--cyan);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* Piezas de la Sala que se reutilizan en la sección de abajo */
+.strip{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-1) var(--s-3);padding:var(--s-2) var(--s-4) var(--s-3);
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.strip__t{flex:1 1 100%;font:500 13.5px/1.3 var(--f-body);color:var(--text)}
+.strip__t b{font-weight:600}
+.strip__n{font:500 13.5px/1 var(--f-display);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cur span{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;font:600 11px/1 var(--f-display);font-style:normal;color:var(--text);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-pill);white-space:nowrap}
+.cur span::before,.who::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ag);flex:none}
+
+/* Tarjeta KPI de la Sala */
+.kpi{display:flex;flex-direction:column;gap:var(--s-1);padding:var(--s-3);border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);min-width:0}
+.kpi__top{display:flex;justify-content:space-between;align-items:center;gap:var(--s-2)}
+.kpi__v{font:600 32px/1 var(--f-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.kpi__v small{margin-left:4px;font:600 18px/1 var(--f-display);color:var(--muted)}
+.kpi__u,.kpi__p{font-size:12px;line-height:1.35;color:var(--muted)}
+.spark{display:flex;align-items:flex-end;gap:2px;height:40px;margin-top:var(--s-2);border-bottom:1px solid var(--line)}
+.spark i{flex:1;min-height:2px;border-radius:var(--r-xs) var(--r-xs) 0 0;background:color-mix(in srgb,var(--cyan) 45%,transparent)}
+.spark i.is-today{background:var(--cyan)}
+
+/* ---------- Secciones ---------- */
+.room-sec,.cases,.more,.how,.bg,.contact{max-width:var(--max);margin:0 auto;padding:var(--s-8) var(--gutter) 0}
+/* Del negro del hero al fondo de la página: un solo degradado largo (1.200 px en escritorio, 960 en móvil),
+   como fondo del bloque que sigue al hero (.rest): empieza en su borde inferior y pasa por detrás de la Sala, con curva suave (smoothstep en 10 tramos). */
+.rest{--fade-h:1100px;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 0.0%,var(--black)) 0%,color-mix(in srgb,var(--bg) 2.8%,var(--black)) 10%,color-mix(in srgb,var(--bg) 10.4%,var(--black)) 20%,color-mix(in srgb,var(--bg) 21.6%,var(--black)) 30%,color-mix(in srgb,var(--bg) 35.2%,var(--black)) 40%,color-mix(in srgb,var(--bg) 50.0%,var(--black)) 50%,color-mix(in srgb,var(--bg) 64.8%,var(--black)) 60%,color-mix(in srgb,var(--bg) 78.4%,var(--black)) 70%,color-mix(in srgb,var(--bg) 89.6%,var(--black)) 80%,color-mix(in srgb,var(--bg) 97.2%,var(--black)) 90%,color-mix(in srgb,var(--bg) 100.0%,var(--black)) 100%) top / 100% var(--fade-h) no-repeat,var(--bg)}
+.sec-head{display:grid;gap:var(--s-3);margin-bottom:var(--s-6)}
+.sec-head h2,.contact h2{font-weight:700;font-size:clamp(36px,9.6vw,68px);letter-spacing:-.03em;line-height:1}
+.sec-head__note{color:var(--muted);max-width:56ch;font-size:16px}
+
+/* ---------- La Sala recreada ---------- */
+.app{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.app__top{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) var(--s-4);border-bottom:1px solid var(--line);background:var(--bg)}
+.ico-btn{display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:var(--r);border:1px solid var(--line);background:var(--surface)}
+.ico-btn svg,.rb svg{width:20px;height:20px;fill:none;stroke:var(--text);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.app__title{font:600 18px/1.2 var(--f-display);flex:1 1 auto;min-width:0}
+.app__time{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.app__top .chip{display:none}
+.app__strip{padding:var(--s-2) var(--s-4) var(--s-3);background:var(--surface);border-bottom:1px solid var(--line)}
+.app__strip .strip{padding:0;border:0;background:none;box-shadow:none}
+.app__eta{margin-top:var(--s-1);font-size:12px;color:var(--muted)}
+.app__body{display:grid;gap:var(--s-4);padding:var(--s-4)}
+.app__main{display:grid;gap:var(--s-3);min-width:0}
+.mode{display:none;gap:4px;padding:4px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface)}
+.js .mode{display:inline-flex}
+.mode__b{min-height:44px;padding:0 var(--s-4);border-radius:var(--r-pill);border:0;background:transparent;color:var(--muted);
+  font:600 13.5px/1 var(--f-display);cursor:pointer;transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease)}
+.mode__b[aria-pressed=true]{background:var(--surface-2);color:var(--text)}
+.mode__b:hover{color:var(--text)}
+.kpis{display:grid;gap:var(--s-3);grid-template-columns:repeat(2,minmax(0,1fr))}
+.kpis .kpi:first-child{grid-column:1 / -1}
+.app__grid{display:grid;gap:var(--s-3);min-width:0}
+.app__side{display:grid;gap:var(--s-3);align-content:start;min-width:0}
+.pane{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:var(--s-3) var(--s-4);min-width:0}
+.pane__h{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);margin-bottom:var(--s-2)}
+.pane__h h3{font:600 15px/1.3 var(--f-display);margin-right:auto}
+.board__count{display:flex;flex-wrap:wrap;gap:var(--s-1) var(--s-3);font-size:12px;color:var(--muted)}
+.board__count b{color:var(--text);font:600 12px/1 var(--f-display)}
+.board__list{display:grid;gap:var(--s-2);margin-top:var(--s-2)}
+.row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;grid-template-areas:"st t who" "st s who";column-gap:var(--s-3);row-gap:2px;align-items:center;
+  padding:var(--s-2) var(--s-3);background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:var(--r)}
+.st{grid-area:st;width:22px;height:22px}
+.st svg{width:22px;height:22px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.row__t{grid-area:t;font-size:14px;line-height:1.35}
+.row__s{grid-area:s;font:500 12px/1.2 var(--f-display);color:var(--muted)}
+.row .who{grid-area:who}
+.row[data-state=verified]{border-left-color:var(--ok)}
+.row[data-state=verified] .st svg circle{fill:var(--ok);stroke:var(--ok)}
+.row[data-state=verified] .st svg path{stroke:var(--bg)}
+.row[data-state=check]{border-left-color:var(--warn)}
+.row[data-state=check] .st svg{stroke:var(--warn)}
+.row[data-state=build]{border-left-color:var(--cyan)}
+.row[data-state=build] .st svg{stroke:var(--cyan)} .row[data-state=build] .st svg path{fill:var(--cyan);stroke:none}
+.row[data-state=spec]{border-left-style:dashed;border-left-color:var(--muted)}
+.row[data-state=spec] .st svg{stroke:var(--muted)}
+/* etiqueta de agente: su color, apagado para no competir con el cian */
+.who{display:inline-flex;align-items:center;height:22px;padding:0 var(--s-2);border-radius:var(--r-pill);white-space:nowrap;
+  gap:5px;--ag:color-mix(in srgb,var(--a) 72%,var(--muted));font:600 11px/1 var(--f-display);color:var(--text);border:1px solid var(--line);background:var(--surface-2)}
+.agents{display:grid;margin-top:var(--s-2)}
+.agents li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"d n c" "d r c";column-gap:var(--s-3);align-items:center;padding:var(--s-2) 0;border-top:1px solid var(--line)}
+.agents li:first-child{border-top:0}
+.agents .dot{grid-area:d}
+.agents__n{grid-area:n;font:600 13.5px/1.3 var(--f-display)}
+.agents__r{grid-area:r;font-size:12px;color:var(--muted)}
+.agents .chip{grid-area:c}
+.review__empty{padding:var(--s-4) 0;text-align:center;color:var(--muted);font-size:14px}
+.review__foot{font-size:12px;color:var(--muted)}
+.events li{display:flex;gap:var(--s-2);padding:var(--s-2) 0;border-top:1px solid var(--line);font-size:13.5px;line-height:1.45}
+.events li:first-child{border-top:0}
+.events .dot{margin-top:7px}
+.events__t small{display:block;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.app__rail{display:flex;justify-content:flex-end;gap:var(--s-2)}
+.rb{display:grid;place-items:center;width:52px;height:52px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface-2);box-shadow:var(--shadow-float)}
+.rb--live{border-radius:var(--r-lg);gap:4px;align-content:center;font:600 11px/1 var(--f-display);letter-spacing:.02em}
+
+/* ---------- Casos: una tarjeta de tablero que pasó por Spec, Build y Verified ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.card+.card{margin-top:var(--s-5)}
+.rail{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.rail li{position:relative;display:flex;align-items:center;gap:var(--s-2);min-height:40px;padding:0 var(--s-3);
+  font:600 11px/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rail li+li{border-left:1px solid var(--line)}
+.rail li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.rail li:last-child{color:var(--ok)}
+.rail li:last-child::before{background:var(--ok)}
+.card__body{display:grid;gap:var(--s-6);padding:var(--s-5) var(--s-4)}
+.card__text{display:grid;gap:var(--s-4);align-content:start}
+.card h3{font-size:clamp(26px,7vw,40px);font-weight:700;letter-spacing:-.025em;line-height:1.05}
+.card--main h3{font-size:clamp(30px,8vw,48px)}
+.card__text>p{max-width:62ch;color:color-mix(in srgb,var(--text) 90%,var(--muted))}
+.problem{font-size:17px;line-height:1.5;color:var(--text)!important;padding-left:var(--s-3);border-left:3px solid var(--cyan)}
+.problem .k{display:block;margin-bottom:2px;font:600 11px/1.6 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.meta{display:grid;gap:var(--s-2);margin:var(--s-1) 0 0;padding-top:var(--s-4);border-top:1px solid var(--line)}
+.meta div{display:grid;grid-template-columns:72px 1fr;gap:var(--s-3);align-items:baseline}
+.meta dt{font:600 11px/1.6 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.meta dd{margin:0;font-size:15px;line-height:1.5}
+/* español: «LANZAMIENTO» no cabe en 72 px; la columna de rótulos crece lo justo */
+:root[lang="es"] .meta div{grid-template-columns:96px 1fr}
+/* español en teléfono: «CONSTRUCCIÓN» y «VERIFICADA» no caben en tercios iguales; cada etapa toma su ancho */
+@media (max-width:479px){:root[lang="es"] .rail{grid-template-columns:auto auto 1fr}:root[lang="es"] .rail li{padding:0 var(--s-2)}}
+.link{display:inline-flex;align-items:center;min-height:var(--touch);color:var(--cyan);font-weight:500;text-underline-offset:4px}
+/* Acciones de cada caso: una fila al pie del texto (enlace al sitio o a la demo, o la nota de que no hay demo pública) */
+.case-link{position:relative;display:inline;min-height:0;padding:var(--s-1) 0}
+.case-act{display:flex;flex-wrap:wrap;gap:var(--s-2);margin:var(--s-5) 0 0}
+.case-act__b{position:relative;gap:var(--s-2);min-height:var(--touch);padding:0 var(--s-4);font:600 15px/1.2 var(--f-display);text-decoration:none}
+.case-act__url{font:400 14px/1.2 var(--f-body);color:var(--muted)}
+.case-act__ico{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.case-act__b:focus-visible,.case-link:focus-visible,.thumbs__link:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.case-act--none{color:var(--muted);font-size:14px}
+.thumbs__link{position:relative;display:block;color:inherit;text-decoration:none;border-radius:var(--r-sm)}
+.thumbs__link figcaption{display:flex;align-items:center;gap:var(--s-1)}
+.thumbs__link:hover figcaption{color:var(--cyan)}
+
+/* Ficha y bandeja recreadas */
+.ticket,.inbox{margin:0;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:var(--s-4);align-self:start}
+.ticket__head,.inbox__head{display:flex;justify-content:space-between;align-items:center;gap:var(--s-3)}
+.ticket__title{font-size:20px;margin:var(--s-3) 0 var(--s-4)}
+.ticket__block{padding-top:var(--s-3);border-top:1px solid var(--line)}
+.ticket__block+.ticket__block{margin-top:var(--s-4)}
+.ticket__block p:not(.ticket__k){font-size:15px;line-height:1.55}
+.ticket__k{margin-bottom:var(--s-2)!important}
+.matrix{width:100%;border-collapse:collapse;font-size:14px;line-height:1.35}
+.matrix th{font:600 11px/1.3 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 var(--s-2) var(--s-2) 0}
+.matrix td{padding:var(--s-2) var(--s-2) var(--s-2) 0;border-top:1px solid var(--line);vertical-align:top}
+.matrix td:last-child,.matrix th:last-child{padding-right:0;text-align:right}
+.ticket__cap{margin-top:var(--s-4);font-size:13px;color:var(--muted);line-height:1.5}
+.inbox__head span:first-child{font:600 18px/1 var(--f-display)}
+.inbox__cats{display:flex;flex-wrap:wrap;gap:var(--s-2);margin:var(--s-4) 0 var(--s-2)}
+.inbox__cats li{display:inline-flex;align-items:center;height:32px;padding:0 var(--s-3);border-radius:var(--r-pill);border:1px solid var(--line);
+  font:600 13px/1 var(--f-display);color:var(--muted);background:var(--surface)}
+.inbox__cats li.is-on{color:var(--cyan-ink);border-color:var(--cyan);background:var(--cyan)}
+.inbox__list li{display:grid;grid-template-columns:1fr auto;gap:2px var(--s-3);padding:var(--s-3) 0;border-top:1px solid var(--line)}
+.inbox__list .from{font-size:13px;color:var(--muted)}
+.inbox__list .subj{grid-column:1;font-size:15px}
+.inbox__list .cat{grid-column:2;grid-row:1 / 3;align-self:center;font:600 12px/1 var(--f-display);color:var(--cyan)}
+.inbox__list .cat--f{color:var(--muted)}
+
+/* Capturas, grandes */
+.shots{display:grid;gap:var(--s-3);align-content:start}
+.shots--pair{grid-template-columns:1fr 1fr}
+.shots__note{grid-column:1 / -1;font-size:13px;color:var(--muted)}
+.phone,.browser{margin:0}
+.phone img{border-radius:var(--r);border:1px solid var(--line);aspect-ratio:600/1100;object-fit:cover;object-position:top;width:100%}
+.browser img{border-radius:var(--r);border:1px solid var(--line);width:100%}
+@media (max-width:767px){.browser img{max-width:320px;aspect-ratio:600/1100;object-fit:cover;object-position:top}}
+.phone figcaption,.browser figcaption{margin-top:var(--s-2);font-size:13px;line-height:1.4;color:var(--muted)}
+
+/* Plataforma (Pulsed): captura principal ancha y una tira de pantallas. En móvil la principal se recorta a la
+   esquina superior izquierda (barra lateral y cifras) y la tira se desliza en horizontal dentro de su caja. */
+.shots--platform{min-width:0}
+.browser--wide img{aspect-ratio:1400/671;object-fit:cover;object-position:left top}
+.thumbs{display:grid;grid-auto-flow:column;grid-auto-columns:min(72%,260px);gap:var(--s-3);min-width:0;
+  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+  padding-bottom:var(--s-2);border-radius:var(--r-sm)}
+.thumbs li{scroll-snap-align:start;min-width:0}
+.thumbs figure{margin:0}
+.thumbs img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:left top;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-ph)}
+.thumbs figcaption{margin-top:var(--s-2);font:500 13px/1.35 var(--f-display);color:var(--muted)}
+@media (max-width:767px){.browser--wide img{max-width:none;aspect-ratio:4/3}}
+@media (min-width:600px){.thumbs{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;padding-bottom:0}}
+
+/* ---------- Más trabajo (Behance): toda la tarjeta es el enlace ----------
+   Portadas en un marco de la misma proporción, apagadas (menos saturación y brillo) hasta el hover o el foco.
+   Las portadas que son solo logo claro o solo texto se reemplazan por una lámina tipográfica sobre una retícula de plano. */
+.works{display:grid;gap:var(--s-4)}
+.work{display:flex;flex-direction:column;height:100%;text-decoration:none;border-radius:var(--r)}
+.work__cover{position:relative;display:block;aspect-ratio:808/632;overflow:hidden;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);
+  transition:border-color var(--dur) var(--ease)}
+.work__cover img{width:100%;height:100%;object-fit:cover;filter:saturate(.45) brightness(.78);transition:filter .25s var(--ease)}
+/* Portada de fondo blanco: lámina apoyada sobre la superficie, más apagada en reposo para no deslumbrar */
+.work__cover--sheet{display:grid;place-items:center}
+.work__cover--sheet img{width:78%;height:auto;aspect-ratio:808/632;max-height:84%;object-fit:contain;border-radius:var(--r-sm);
+  box-shadow:0 10px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.35);filter:saturate(.45) brightness(.68)}
+/* Portada solo de texto: tarjeta tipográfica sobre una retícula tenue de plano */
+.work__cover--type{display:flex;flex-direction:column;justify-content:center;gap:var(--s-2);padding:var(--s-5);
+  background-image:linear-gradient(color-mix(in srgb,var(--line) 30%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in srgb,var(--line) 30%,transparent) 1px,transparent 1px);
+  background-size:24px 24px;background-position:-1px -1px;background-color:var(--surface)}
+.work__cat{font:600 11px/1.3 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.work__big{font:700 clamp(48px,14vw,64px)/.95 var(--f-display);letter-spacing:-.035em;color:color-mix(in srgb,var(--text) 82%,var(--muted));
+  transition:color var(--dur) var(--ease)}
+.work__body{display:grid;gap:var(--s-1);padding:var(--s-3) var(--s-1) 0}
+.work__row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3)}
+.work__t{font:600 20px/1.2 var(--f-display);letter-spacing:-.01em;transition:color var(--dur) var(--ease)}
+.work__y{font:500 13px/1 var(--f-display);color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
+.work__co{font:500 13px/1.3 var(--f-display);color:var(--cyan)}
+.work__d{font-size:15px;line-height:1.5;color:var(--muted);max-width:44ch}
+.work:hover .work__cover,.work:focus-visible .work__cover{border-color:var(--cyan)}
+.work:hover .work__cover img,.work:focus-visible .work__cover img{filter:none}
+.work:hover .work__big,.work:focus-visible .work__big{color:var(--text)}
+.work:hover .work__t,.work:focus-visible .work__t{color:var(--cyan)}
+.work:focus-visible{outline-offset:4px}
+@media (prefers-reduced-motion:reduce){.work__cover img{transition:none}}
+@media (min-width:600px){.works{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-6) var(--s-4)}}
+@media (max-width:599px){.work__cover{aspect-ratio:16/10}.work__cover--sheet img{width:auto;height:84%}}
+@media (min-width:1024px){.works{grid-template-columns:repeat(3,minmax(0,1fr))}.work__big{font-size:60px}}
+
+/* Cómo trabajo (es una secuencia: los números dicen el orden) */
+/* Stepper del storyboard (P11) sin tarjetas: línea, nodos numerados y el texto al aire, cada paso alineado con su nodo.
+   Teléfono y tableta (< 1024): vertical, línea a la izquierda, el centro del nodo a la altura de la 1.ª línea del título
+   (título 20px × 1.15 = 23px de línea → centro a 11.5px; nodo de 32px → top −4.5px).
+   Escritorio: 4 columnas; nodo, etiqueta, título y texto empiezan en el mismo borde izquierdo.
+   Cada tramo de línea vive dentro de su paso (del centro de su nodo al centro del siguiente), así se arma con él.
+   Estado de base = estado final del storyboard: tramos en cian y nodos encendidos. */
+.flow{position:relative}
+.steps{display:grid;gap:var(--s-6)}
+.step{position:relative;padding-left:var(--s-7)}
+.step__n{position:absolute;left:0;top:-4.5px;z-index:1;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;
+  border:1px solid var(--line);background:var(--surface-2);font:600 14px/1 var(--f-display);color:var(--muted)}
+.step__n b{position:absolute;inset:-1px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--cyan);
+  background:color-mix(in srgb,var(--cyan) 12%,var(--bg));color:var(--cyan);font-weight:600}
+.step__seg{position:absolute;left:15px;top:11.5px;width:2px;height:calc(100% + var(--s-6));background:var(--line);pointer-events:none}
+.step__seg i{position:absolute;inset:0;background:var(--cyan);transform-origin:50% 0}
+.step__lb{display:none;font:600 11px/1.3 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.step h3{font-size:20px;margin:0 0 var(--s-2)}
+.step p{color:var(--muted);font-size:15px;max-width:60ch}
+.flow.mo-pre .step__n b{opacity:0}
+.flow.mo-pre .step__seg i{transform:scale(0)}
+
+/* «See it in motion»: la pieza de la Fábrica bajo el stepper. Aquí vive todo lo que se ve ANTES de apretar reproducir
+   (fabrica/fabrica.css llega recién con el clic): el escenario tiene tamaño propio (16:9; en teléfono, el alto exacto del cuadro
+   a 1,05 px por unidad con su franja superior: (360 + 50) × 1,05), el póster y el botón. */
+.fab{margin:var(--s-8) 0 0}
+.fab__head{margin-bottom:var(--s-4)}
+.fab__t{font-size:20px;margin:0 0 var(--s-1)}
+.fab__note{color:var(--muted);font-size:15px;max-width:60ch}
+.fab .player{min-width:0}
+.fab__stage{position:relative;aspect-ratio:16/9;width:100%;border:1px solid var(--line);border-radius:var(--r);background:var(--black);overflow:hidden;min-width:0}
+.fab .poster{position:absolute;inset:0;background:var(--black);transition:opacity .25s var(--ease)}
+.fab .stage.is-run .poster{opacity:0;pointer-events:none}
+.fab__rm{display:none;margin-top:var(--s-2);color:var(--muted);font-size:14px}
+.fab--rm:not(.is-on) .fab__rm{display:block}
+@media (max-width:699px){
+  .fab__stage{aspect-ratio:auto;height:430.5px;width:auto;margin:0 calc(-1 * var(--gutter));border-radius:0;border-left:0;border-right:0}
+}
+
+/* Póster C «Titular» (propuesta elegida el 14-11, _revision/poster-propuestas/). Solo tokens; Space Grotesk 700 en el titular
+   (Anton queda para el hero). Medidas relativas a la caja del escenario (container-type:size antes del clic; al cargar la pieza,
+   fabrica.css la pasa a inline-size y el póster ya se fue). El botón #fab-go es el único enganche del play. */
+.fab__stage{container-type:size;--disc:clamp(88px,8.6cqi,116px);--hs:clamp(40px,6.4cqi,80px)}
+/* el trazo ocupa solo su franja (x 0–82 %, y 40–80 % del escenario: el recorte exacto del viewBox 1600×900 de antes, misma escala),
+   así su marco en el Tour es del tamaño del trazo y no de todo el póster */
+.pc__trace{position:absolute;left:0;top:40%;width:82%;height:40%;display:block;overflow:visible}
+.pc__trace path{stroke:var(--line);stroke-width:2}
+/* titular y bajada en un solo bloque (una unidad del Tour); misma posición que cuando eran dos piezas sueltas */
+.pc__title{position:absolute;left:6cqi;top:10cqh}
+.pc__h{margin:0;font:700 var(--hs)/1 var(--f-display);letter-spacing:-.025em;color:var(--text)}
+.pc__h span{display:block}
+.pc__sub{margin:var(--s-4) 0 0;
+  font:500 clamp(15px,1.5cqi,19px)/1.4 var(--f-body);color:var(--muted)}
+.pc__strip{position:absolute;left:6cqi;right:6cqi;bottom:6cqh;display:grid;grid-template-columns:repeat(8,1fr);gap:var(--s-1);margin:0;padding:0;list-style:none}
+.pc__strip li{border-top:2px solid var(--line);padding-top:var(--s-2);font:500 13px/1.3 var(--f-display);color:var(--muted);min-width:0}
+.pc__strip li.is-fail{border-top-color:var(--warn)}
+.pc__strip em{display:block;font-style:normal;font-weight:600;color:var(--warn)}
+.fab__go{position:absolute;z-index:2;left:82%;top:42%;transform:translate(-50%,calc(var(--disc) / -2 - var(--s-3)));display:flex;flex-direction:column;align-items:center;
+  gap:var(--s-3);margin:0;padding:var(--s-3);border:0;border-radius:var(--r-lg);background:transparent;color:var(--text);font:inherit;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.fab__go[hidden]{display:none}
+.fab__disc{display:grid;place-items:center;flex:none;width:var(--disc);height:var(--disc);border-radius:50%;background:var(--cyan);color:var(--cyan-ink);
+  box-shadow:0 0 0 10px var(--black),var(--shadow-float);transition:background-color var(--dur) var(--ease)}
+.fab__disc svg{display:block;width:40%;height:40%;margin-left:6%;fill:currentColor}
+.fab__go:hover .fab__disc{background:color-mix(in srgb,var(--cyan) 80%,var(--text))}
+.fab__go:active .fab__disc{background:color-mix(in srgb,var(--cyan) 70%,var(--black))}
+.fab__go:focus-visible{outline:none}
+.fab__go:focus-visible .fab__disc{outline:2px solid var(--text);outline-offset:4px}
+.fab__txt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.fab__lbl{font:600 18px/1.2 var(--f-display);color:var(--text)}
+.fab__meta{font:500 14px/1.3 var(--f-display);color:var(--muted);white-space:nowrap}
+.fab.is-loading .fab__go{cursor:progress}
+.fab.is-loading .fab__disc{opacity:.75}
+/* Teléfono: composición propia. Titular arriba, play como fila, tira al pie con solo inicio, fallo y fin rotulados */
+@media (max-width:699px){
+  .fab__stage{--disc:64px;--hs:44px}
+  .pc__trace{display:none}
+  .pc__title{left:var(--gutter);right:var(--gutter);top:var(--s-5)}
+  .pc__sub{margin-top:var(--s-3);font-size:15px}
+  .fab__go{left:calc(var(--gutter) - var(--s-2));top:auto;bottom:86px;transform:none;flex-direction:row;gap:var(--s-4);padding:var(--s-2);padding-right:var(--s-4)}
+  .fab__disc{box-shadow:var(--shadow-float)}
+  .fab__txt{align-items:flex-start}
+  .pc__strip{left:var(--gutter);right:var(--gutter);bottom:var(--s-5)}
+  .pc__strip li{font-size:12px;display:flex;white-space:nowrap;min-height:24px}
+  .pc__strip li span{display:none}
+  .pc__strip li:first-child span,.pc__strip li:last-child span{display:block}
+  .pc__strip li:last-child{justify-content:flex-end}
+  .pc__strip li.is-fail{justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){.fab .poster,.fab__disc{transition:none}}
+
+/* Trayectoria */
+.timeline li{display:grid;grid-template-columns:1fr;gap:2px;padding:var(--s-4) 0;border-top:1px solid var(--line)}
+.timeline li:last-child{border-bottom:1px solid var(--line)}
+.when{font:500 13px/1.6 var(--f-display);color:var(--muted);font-variant-numeric:tabular-nums}
+.org{font:600 20px/1.3 var(--f-display)}
+.what{color:var(--muted)}
+.timeline__feat .what{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s-1);max-width:62ch}
+.timeline__ship{margin-top:var(--s-2)}
+.skills__t{font-size:20px;margin:var(--s-6) 0 var(--s-3)}
+.skills{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.skills li{display:inline-flex;align-items:center;min-height:36px;white-space:nowrap;font:500 14px/1 var(--f-display);padding:0 var(--s-4);
+  border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--line)}
+/* Grupos de habilidades: «IA y agentes» primero y con el acento cian (rótulo y borde de sus chips); el resto, como antes */
+.skills-g + .skills-g{margin-top:var(--s-6)}
+.skills-g__t{font:600 16px/1.3 var(--f-display);margin:var(--s-5) 0 var(--s-3);color:var(--text)}
+.skills-g__t:first-child{margin-top:0}
+.skills-g--ai{padding:var(--s-5);border:1px solid color-mix(in srgb,var(--cyan) 35%,var(--line));border-radius:var(--r);background:var(--surface)}
+.skills-g--ai .skills-g__t{font-size:20px;color:var(--cyan)}
+.skills-g__k{margin:var(--s-4) 0 var(--s-2);font:500 13px/1.3 var(--f-display);color:var(--muted)}
+.skills-g__t + .skills-g__k{margin-top:0}
+.skills--ai li{border-color:color-mix(in srgb,var(--cyan) 55%,var(--line));background:var(--bg)}
+/* IA: frases más largas que un chip; en pantallas angostas pasan a dos renglones en vez de salirse */
+.skills--ai li{white-space:normal;line-height:1.3;padding:var(--s-2) var(--s-4)}
+@media (max-width:479px){.skills-g--ai{padding:var(--s-4);margin:0 calc(-1 * var(--s-2))}.skills--ai li{border-radius:var(--r)}}
+
+/* Contacto */
+.contact__lead{color:var(--muted);margin:var(--s-3) 0 var(--s-5)}
+.links{display:grid;gap:var(--s-2)}
+.links a{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s-1) var(--s-3);min-height:64px;
+  padding:var(--s-3) var(--s-4);border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  text-decoration:none;font:600 18px/1.2 var(--f-display);transition:border-color var(--dur) var(--ease)}
+.links a:hover{border-color:var(--cyan)}
+.links__v{font:400 14px/1.3 var(--f-body);color:var(--muted)}
+.foot{max-width:var(--max);margin:var(--s-8) auto 0;padding:var(--s-6) var(--gutter) calc(var(--s-7) + 64px);color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+
+/* ---------- Enjambre: solo existe con la clase .swarm (puesta por JS). Sin JS o con reduced-motion todo se ve desde el inicio. ---------- */
+.swarm-skip{display:none}
+/* Unidades aún sin armar: guardan su espacio y el contenido queda recortado (clip-path), nunca oculto al lector de pantalla */
+/* Antes de que swarm.js marque las unidades (sin .sw-ready) se recorta todo; después solo lo que sigue pendiente,
+   así cada unidad se ve en cuanto se arma, también durante la intro */
+.swarm:not(.sw-ready) [data-build],.swarm:not(.sw-ready) [data-build-items]>*,.js .sw-pending{clip-path:inset(0 100% 0 0)}
+
+/* Marco de selección, relleno provisional y guías: overlays en capas propias, sin tocar el layout */
+.plan-layer{position:absolute;left:0;top:0;width:100%;height:0;overflow-x:clip;z-index:30;pointer-events:none}
+.fr{--fc:var(--ag-tl);position:absolute;left:0;top:0}
+.fr__e,.fr__h{opacity:.85}
+.fr__ph{position:absolute;inset:0;border-radius:var(--r-sm);overflow:hidden}
+.fr__ph--flat{background:color-mix(in srgb,var(--cyan) 10%,var(--surface-2))}
+.fr__bar{position:absolute;left:0;top:0;border-radius:3px;background:color-mix(in srgb,var(--cyan) 12%,var(--surface-2))}
+.fr__e{position:absolute;left:0;top:0;background:var(--fc);transform-origin:0 0}
+.fr__e--t,.fr__e--b{width:100%;height:1px}
+.fr__e--l,.fr__e--r{width:1px;height:100%}
+.fr__h{position:absolute;left:0;top:0;width:7px;height:7px;background:var(--bg);border:1px solid var(--fc)}
+.fr__tag{position:absolute;left:-1px;bottom:100%;margin-bottom:4px;display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;
+  font:600 11px/1 var(--f-display);color:var(--text);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-pill);white-space:nowrap}
+.fr__tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--fc);flex:none}
+.fr__tag:empty{display:none}
+.fr.is-ok{--fc:var(--ok)}
+/* marco que pasa por detrás de otro bloque (data-behind): la etiqueta va a la derecha, fuera del hueco */
+.fr--behind .fr__tag{left:auto;right:-1px}
+/* Plano: lo que falta por construir, antes de la línea de construcción. Punteado fino y relleno tenue, sin tiradores ni etiqueta */
+.fr--plan .fr__e--t,.fr--plan .fr__e--b{background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--cyan) 45%,var(--line)) 0 4px,transparent 4px 8px)}
+.fr--plan .fr__e--l,.fr--plan .fr__e--r{background:repeating-linear-gradient(180deg,color-mix(in srgb,var(--cyan) 45%,var(--line)) 0 4px,transparent 4px 8px)}
+.fr--plan .fr__h,.fr--plan .fr__tag{display:none}
+.fr--plan .fr__ph{opacity:.5}
+.guide{position:absolute;left:0;top:0;background:color-mix(in srgb,var(--cyan) 40%,transparent);opacity:0;transition:opacity .15s}
+.guide--h{width:100%;height:1px}.guide--v{width:1px;height:100%}
+.guide.is-on{opacity:1}
+
+/* Cursores: los con nombre (agentes) y los chicos del enjambre; capa fija que no recibe clics */
+.swarm-layer{position:fixed;inset:0;z-index:65;pointer-events:none;overflow:hidden}
+.cur,.mini{position:absolute;left:0;top:0;will-change:transform}
+.cur{display:flex;align-items:flex-start;gap:2px}
+.cur svg{width:26px;height:26px;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+/* la punta de la flecha (2, 1.5 en el viewBox de 18) cae justo en el punto del cursor, a cualquier tamaño */
+.cur:not(.cur--text) svg{transform:translate(calc(-100% * 2 / 18),calc(-100% * 1.5 / 18))}
+.cur{--ag:color-mix(in srgb,var(--a) 72%,var(--muted))}
+.cur svg path{fill:var(--ag);stroke:var(--bg);stroke-width:1.5}
+.cur--text svg{height:30px;margin-left:-13px}
+.cur--text svg path{fill:none;stroke:var(--ag);stroke-width:2.2;stroke-linecap:round}
+.cur span{margin-top:15px}
+.mini svg{width:16px;height:16px;display:block;opacity:.9}
+.mini svg path{fill:var(--a);stroke:var(--bg);stroke-width:1.5}
+
+/* Etapa de inicio: negro de borde a borde bajo los cursores y la barra (lo pone el <head>; lo quita swarm.js) */
+.sw-stage::before,.sw-stage-out::before{content:"";position:fixed;inset:0;z-index:60;background:var(--black);pointer-events:none}
+.sw-stage-out::before{animation:sw-fuera .35s var(--ease) forwards}
+@keyframes sw-fuera{to{opacity:0}}
+@keyframes sw-aparece{from{opacity:0}}
+.swarm-layer--in>*{animation:sw-aparece .5s var(--ease) both}
+.sw-mark{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font:700 40px/1 var(--f-display);letter-spacing:-.02em;color:var(--line)}
+
+/* Barra-controlador: abajo y centrada; recorre el sitio solo (Tour), entra a mano (Enter), velocidad y Skip.
+   Cian solo en el botón activo y en la línea de progreso. */
+.swarm-hud{position:fixed;z-index:70;left:50%;bottom:calc(var(--s-3) + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:var(--s-2);max-width:calc(100vw - 2 * var(--s-3));padding:var(--s-1) var(--s-1) var(--s-1) var(--s-4);
+  border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow-float);
+  font:500 12px/1 var(--f-display);color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;
+  opacity:0;visibility:hidden;transform:translate(-50%,12px);pointer-events:none;
+  transition:opacity .3s var(--ease),transform .3s var(--ease),visibility 0s linear .3s}
+.swarm-hud.is-on{opacity:1;visibility:visible;transform:translate(-50%,0);pointer-events:auto;transition-delay:0s}
+.swarm-hud.is-final{padding-right:var(--s-4);min-height:54px}
+.swarm-hud__dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
+.swarm-hud__txt{margin-right:var(--s-1)}
+.swarm-hud__bar{width:56px;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;flex:none;margin-right:var(--s-1)}
+.swarm-hud__bar i{display:block;height:100%;background:var(--cyan);transform-origin:0 0;transform:scaleX(0);transition:transform .3s var(--ease)}
+.swarm-hud__b,.swarm-replay{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:0 var(--s-3);
+  border-radius:var(--r-pill);border:1px solid var(--line);background:transparent;color:var(--text);font:600 13px/1 var(--f-display);cursor:pointer;
+  transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease)}
+.swarm-hud .swarm-skip{display:inline-flex}
+.swarm-hud__b[hidden],.swarm-hud .swarm-skip[hidden]{display:none}
+.swarm-hud__b:hover,.swarm-replay:hover{background:var(--surface-2);border-color:color-mix(in srgb,var(--text) 30%,var(--line))}
+.swarm-hud__b[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink)}
+.swarm-hud__b[aria-pressed="true"]:hover{background:color-mix(in srgb,var(--cyan) 85%,#fff)}
+.swarm-hud__b svg,.swarm-replay svg{width:10px;height:10px;fill:currentColor;flex:none}
+.swarm-hud__b--speed{font-variant-numeric:tabular-nums;padding:0 var(--s-2)}
+.swarm-hud__st{font-weight:600;color:var(--cyan)}
+.swarm-hud.is-paused .swarm-hud__st{color:var(--warn)}
+.swarm-hud.is-paused .swarm-hud__dot{background:var(--warn)}
+/* Etapa de inicio en reposo: el Tour empieza solo si el visitante lo pide. El negro recibe el clic (atajo de escritorio). */
+/* Solo con puntero fino: en táctil el negro deja pasar el arrastre a la página (el toque no hace nada; lo filtra swarm.js) */
+@media (pointer:fine){.sw-stage::before{pointer-events:auto;cursor:pointer}}
+.swarm-invite{position:fixed;z-index:70;left:50%;bottom:calc(var(--s-7) + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;align-items:center;gap:var(--s-2);width:max-content;max-width:calc(100vw - 2 * var(--gutter));
+  opacity:0;transform:translate(-50%,12px);transition:opacity .3s var(--ease),transform .3s var(--ease)}
+.swarm-invite.is-on{opacity:1;transform:translate(-50%,0)}
+.swarm-invite__go{gap:var(--s-2)}
+.swarm-invite__go svg{width:10px;height:10px;fill:currentColor;flex:none}
+.swarm-invite__solo{display:inline-flex;align-items:center;min-height:var(--touch);padding:0 var(--s-3);font:500 14px/1 var(--f-display);color:var(--muted);
+  text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px;transition:color var(--dur) var(--ease),text-decoration-color var(--dur) var(--ease)}
+.swarm-invite__solo:hover{color:var(--text);text-decoration-color:var(--cyan)}
+/* «Replay tour» permanente: en la cabecera (a la derecha, tras el estado) y en el pie. Discreto: borde fino, texto atenuado;
+   28 px de alto con zona táctil de 44 px. Solo existe con el enjambre (sin JS o con reduced-motion queda oculto). */
+.tour-replay{position:relative;display:inline-flex;align-items:center;gap:var(--s-1);height:28px;padding:0 var(--s-3);
+  border:1px solid var(--line);border-radius:var(--r-pill);background:transparent;color:var(--muted);font:600 12px/1 var(--f-display);
+  white-space:nowrap;cursor:pointer;transition:color var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.tour-replay::before{content:"";position:absolute;inset:-8px -2px}
+.tour-replay:hover{color:var(--text);border-color:var(--cyan)}
+.tour-replay svg{width:8px;height:8px;fill:currentColor;flex:none}
+.top__replay{margin-left:var(--s-2)}
+.foot__replay{margin-top:var(--s-3)}
+/* teléfono muy angosto (320 px): en español la franja de estado queda justa; el botón se compacta un poco */
+@media (max-width:359px){.top__replay{margin-left:var(--s-1);padding:0 var(--s-2)}}
+@media (max-width:479px){
+  .swarm-hud{gap:var(--s-1);padding-left:var(--s-3);font-size:12px}
+  .swarm-hud__bar{width:28px}
+  .swarm-hud__b{padding:0 var(--s-2);font-size:12px}
+}
+
+/* ---------- Motion (motion.js; storyboard _revision/storyboard-motion.html) ----------
+   Solo transform, opacity y clip-path. Los estados «mo-pre» existen solo mientras el rebuild arma el bloque. */
+/* P6: minigráficos esperan en cero hasta que la tarjeta KPI queda armada */
+.kpi.mo-pre .spark i{transform:scaleY(0)}
+.spark i{transform-origin:50% 100%}
+/* P9: raíl de los casos; los «pass» esperan a que se encienda la última etapa */
+.rail{position:relative}
+.mo-rail{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--cyan);transform-origin:0 50%;transform:scaleX(0);pointer-events:none}
+.mo-lit{position:absolute;inset:0;display:flex;align-items:center;gap:var(--s-2);padding:0 var(--s-3);background:var(--surface);color:var(--cyan);opacity:0;pointer-events:none}
+.mo-lit::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cyan);flex:none}
+.ticket.mo-pre .matrix .chip{opacity:0}
+/* P10: tarjetas de More work (las únicas tarjetas que son enlace): suben 2 px y la portada se acerca */
+.work{transition:transform var(--dur) var(--ease)}
+.work__cover img{transition:filter .25s var(--ease),transform .4s cubic-bezier(.16,.84,.44,1)}
+@media (hover:hover){
+  .work:hover{transform:translateY(-2px)}
+  .work:hover .work__cover img{transform:scale(1.03)}
+}
+.work:focus-visible{transform:translateY(-2px)}
+.work:focus-visible .work__cover img{transform:scale(1.03)}
+/* P2: «PORTFOLIO» letra a letra; el degradado va en cada letra (vertical: mismo alto, mismo corte) */
+.hero__word.is-split{background:none}
+.hero__word.is-split .l{display:inline-block}
+.hero__word.is-split .l i{display:inline-block;font-style:normal;
+  background:linear-gradient(180deg,#00E5FF 0%,#00D2EC 24%,#00A9C4 42%,#03606F 58%,#022A33 76%,#000 92%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero__word.is-rising .l{clip-path:inset(-30% -10% -2% -10%)}
+.hero__word.is-rising .l i{animation:mo-rise .52s cubic-bezier(.2,.8,.2,1) calc(var(--i) * 45ms) both}
+@keyframes mo-rise{from{transform:translateY(104%)}to{transform:none}}
+/* P3: retrato que se asienta; parallax con la propiedad translate (no pisa el transform de la composición) */
+.hero__portrait picture{transform-origin:50% 100%}
+.hero__portrait.mo-pre picture{scale:1.04}
+.hero__word{translate:calc(var(--px,0) * 4px) calc(var(--py,0) * 4px)}
+.hero__portrait{translate:calc(var(--px,0) * -1.5px) calc(var(--py,0) * -1.5px)}
+/* P5: línea de sección con cruces al entrar a la Sala */
+.rest{position:relative}
+.mo-seam{position:absolute;top:0;left:max(var(--gutter),calc((100% - var(--max)) / 2 + var(--gutter)));right:max(var(--gutter),calc((100% - var(--max)) / 2 + var(--gutter)));height:1px;z-index:1;pointer-events:none}
+.mo-seam i{position:absolute;inset:0;background:var(--cyan);transform-origin:0 50%;transform:scaleX(0)}
+.mo-seam b{position:absolute;top:0;width:11px;height:11px;margin:-5px 0 0 -5px;opacity:0}
+.mo-seam b::before,.mo-seam b::after{content:"";position:absolute;background:var(--cyan)}
+.mo-seam b::before{left:5px;top:0;width:1px;height:11px}
+.mo-seam b::after{top:5px;left:0;width:11px;height:1px}
+/* P7: latido lento y tenue del punto «Open to freelance work» y del interruptor «Live»; solo en vista */
+.top__status .dot{position:relative}
+.top__status .dot::after,.rb--live .switch::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--ok);opacity:0;pointer-events:none}
+.rb--live .switch::after{inset:-1px;--ring:1.45}
+.mo-pulse.is-vis::after{animation:mo-ring 2.8s var(--ease) infinite}
+@keyframes mo-ring{0%{transform:scale(1);opacity:.3}65%,100%{transform:scale(var(--ring,2.4));opacity:0}}
+/* P14: barra superior que se oculta al bajar y vuelve al subir (sticky: reserva su lugar, nada salta).
+   Capas: ::before = negro del hero (diseño estático), ::after = fondo flotante; se cruzan con opacity. */
+.top.mo-hr{position:sticky;top:0;background:transparent;transition:transform .22s var(--ease)}
+.top.mo-hr::before,.top.mo-hr::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;transition:opacity .22s var(--ease)}
+.top.mo-hr::before{background:var(--black)}
+.top.mo-hr::after{bottom:-1px;background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line);opacity:0}
+.top.mo-hr.is-float::before{opacity:0}
+.top.mo-hr.is-float::after{opacity:1}
+.top.mo-hr.is-hidden{transform:translateY(calc(-100% - 2px))}
+.top__nav{position:relative}
+.top__ind{position:absolute;left:0;bottom:6px;width:100px;height:2px;border-radius:1px;background:var(--cyan);transform-origin:0 50%;opacity:0;pointer-events:none;
+  transition:transform .25s var(--ease),opacity .2s var(--ease)}
+.top__ind.is-on{opacity:1}
+.top__nav a[aria-current]{color:var(--text)}
+.rest>section[id]{scroll-margin-top:var(--s-6)}
+/* P11: el punto que recorre los pasos (vive en .flow) */
+.mo-tok{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--cyan) 18%,transparent);z-index:2;opacity:0;pointer-events:none}
+.mo-nd{position:absolute;inset:-1px;border-radius:50%;border:1px solid var(--cyan);box-shadow:0 0 0 3px color-mix(in srgb,var(--cyan) 16%,transparent);opacity:0;pointer-events:none}
+.mo-back{position:absolute;left:0;top:0;z-index:2;display:inline-flex;align-items:center;height:20px;padding:0 var(--s-2);border-radius:var(--r-pill);
+  border:1px solid var(--warn-line);background:var(--surface);font:600 11px/1 var(--f-display);color:var(--warn);white-space:nowrap;opacity:0;pointer-events:none}
+/* P13: enlaces de contacto, subrayado que se dibuja bajo el dato */
+.links__v{position:relative}
+.links__v::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:var(--cyan);transform:scaleX(0);transform-origin:0 50%;
+  transition:transform .2s var(--ease);pointer-events:none}
+@media (hover:hover){.links a:hover .links__v::after{transform:scaleX(1)}}
+.links a:focus-visible .links__v::after{transform:scaleX(1)}
+/* P8: el tablero cambia un estado (color y etiqueta, sin medidas) y suma un evento (lista de alto fijo) */
+.row{transition:border-color .3s var(--ease)}
+.st{position:relative}
+.mo-ok{position:absolute;inset:0}
+.row .st .mo-ok circle{fill:var(--ok);stroke:var(--ok)}
+.row .st .mo-ok path{stroke:var(--bg)}
+.row__s{position:relative}
+.mo-lab{position:absolute;left:0;top:0;white-space:nowrap;opacity:0}
+.events.mo-fixed{overflow:clip}
+@media (prefers-reduced-motion:reduce){
+  .top.mo-hr,.top.mo-hr::before,.top.mo-hr::after,.top__ind,.row,.links__v::after{transition:none}
+  .hero__word,.hero__portrait{translate:none}
+  .work,.work__cover img{transition:none}
+  .work:hover,.work:focus-visible,.work:hover .work__cover img,.work:focus-visible .work__cover img{transform:none}
+}
+
+/* ---------- Tableta ---------- */
+@media (min-width:600px){
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kpis .kpi:first-child{grid-column:auto}
+  .app__top .chip{display:inline-flex}
+}
+@media (min-width:768px){
+  :root{--gutter:32px;--top-h:64px}
+  body{font-size:17px}
+  .shots--pair{max-width:600px}
+  .timeline li{grid-template-columns:150px 220px 1fr;align-items:baseline;gap:var(--s-4)}
+  .top__status{flex:0 0 auto;min-height:var(--touch);margin:0 0 0 var(--s-4);padding:0 0 0 var(--s-4);border-top:0;border-left:1px solid var(--line);min-height:20px;font-size:13px}
+  .hero__stage{height:620px}
+  .links{grid-template-columns:repeat(2,1fr)}
+  .links li:last-child:nth-child(odd){grid-column:1 / -1} /* fila impar suelta: ocupa el ancho completo */
+}
+
+/* ---------- Escritorio: texto a la izquierda (hacia donde abre el cuerpo), escenario a la derecha ---------- */
+@media (min-width:1024px){
+  :root{--gutter:40px}
+  /* el hero llena la primera pantalla: palabra arriba, retrato al centro, nombre y cifras en la base */
+  .hero__in{height:min(max(680px,calc(100svh - var(--top-h))),860px);padding:0}
+  .hero__stage{position:absolute;inset:0 var(--gutter);height:auto}
+  .hero{--word-sy:1.68}
+  .hero__word{top:var(--s-5)}
+  /* la cabeza cae en la mitad baja de las letras; la cadera se recorta en el borde inferior del hero, fundida al negro */
+  .hero__portrait{left:57%;top:23%;bottom:auto;height:92%}
+  .hero__portrait img{-webkit-mask-image:linear-gradient(180deg,#000 58%,transparent 83%);mask-image:linear-gradient(180deg,#000 58%,transparent 83%)}
+  .hero__intro{position:absolute;left:var(--gutter);bottom:var(--s-7);width:400px;margin:0}
+  .hero__title{font-size:clamp(84px,7.4vw,104px)}
+  .hero__stats{position:absolute;right:var(--gutter);bottom:var(--s-7);width:228px;margin:0;grid-template-columns:1fr;border-top:0}
+  .hero__stats li,.hero__stats li+li{grid-template-columns:96px 1fr;align-items:center;gap:var(--s-3);padding:var(--s-4) 0;border-left:0}
+  .hero__stats li+li{border-top:1px solid var(--line)}
+  .hero__stats b{font-size:44px}
+  .hero__note{position:absolute;right:var(--gutter);top:47%;width:236px;margin:0}
+
+  .room-sec{padding-top:var(--s-8)}
+  .rest{--fade-h:1200px}
+  .card__body{grid-template-columns:5fr 7fr;gap:var(--s-7);padding:var(--s-6)}
+  .card--main .card__body{grid-template-columns:6fr 6fr}
+  .shots--pair{max-width:none}
+  .steps{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .step{padding-left:0}
+  .step__n{position:relative;top:0}
+  .step__seg{left:16px;top:15px;width:calc(100% + var(--s-6));height:2px}
+  .step__seg i{transform-origin:0 50%}
+  .step__lb{display:block;margin:var(--s-3) 0 var(--s-1)}
+  .app__body{grid-template-columns:minmax(0,1fr) 56px;padding:var(--s-5)}
+  .app__grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+  .app__rail{flex-direction:column;justify-content:flex-start}
+  .rb{width:52px;height:52px;box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .swarm [data-build],.swarm [data-build-items]>*,.js .sw-pending{clip-path:none}
+  .plan-layer,.swarm-layer,.swarm-hud,.swarm-replay,.sw-stage::before,.sw-stage-out::before{display:none}
+}

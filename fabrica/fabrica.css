@@ -1,0 +1,53 @@
+/* Reproductor de la pieza «Fábrica» dentro del portafolio. Se carga solo al apretar reproducir (ver el cargador en index.html).
+   Reglas del reproductor tomadas de _revision/storyboard-fabrica.css (escenario, rótulo, barra, controles), acotadas a .fab
+   para no chocar con las clases del sitio (.top, .play, .ctrl…). Colores y letras: los tokens del sitio (styles.css). */
+.fab .player{--cyan-soft:color-mix(in srgb,var(--cyan) 14%,transparent);--f-d:var(--f-display)}
+.fab .stage{container-type:inline-size}
+.fab .stage>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.fab .cap{position:absolute;left:0;right:0;bottom:2.6cqw;display:flex;justify-content:center;pointer-events:none;padding:0 12px}
+.fab .cap__m{display:block;overflow:hidden;padding:2px 0}
+.fab .cap__in{display:block;font:600 clamp(12px,3.2cqw,22px)/1.15 var(--f-d);color:var(--text);text-align:center;white-space:nowrap;background:color-mix(in srgb,#000 72%,transparent);padding:3px 10px;border-radius:6px}
+.fab .sc-tag{position:absolute;right:max(12px,5cqw);top:max(8px,2.6cqw);z-index:1;font:600 clamp(11px,1.7cqw,12px)/1 var(--f-d);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);pointer-events:none}
+.fab .stage.is-run .poster{opacity:0;pointer-events:none}
+.fab .stage:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.fab .vh{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+.fab .sbar{margin-top:10px}
+.fab .sbar__t{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 12px;font:600 13px/1.3 var(--f-d);color:var(--text)}
+.fab .sbar__t span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fab .sbar__s{display:flex;gap:3px}
+.fab .sbar__s button{position:relative;min-width:0;height:44px;padding:0;margin:0;border:0;background:none;cursor:pointer;border-radius:4px}
+.fab .sbar__s button::before,.fab .sbar__s i{content:"";position:absolute;left:0;right:0;top:20px;height:4px;border-radius:2px}
+.fab .sbar__s button::before{background:var(--line)}
+.fab .sbar__s button:hover::before{background:#33465c}
+.fab .sbar__s i{display:block;background:var(--cyan);transform-origin:left center;transform:scaleX(0)}
+
+.fab .ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.fab .play{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);font:600 13px/1 var(--f-d);cursor:pointer;transition:background-color .2s,color .2s}
+.fab .play:hover{background:var(--cyan-soft)}
+.fab .play svg{width:12px;height:12px;fill:currentColor}
+.fab .play--g{border-color:var(--line);color:var(--muted)}
+.fab .play--g:hover{color:var(--text)}
+.fab .play span{white-space:nowrap}
+.fab .play--i{width:44px;padding:0}
+.fab .play[hidden]{display:none}
+.fab .play[disabled]{opacity:.4;cursor:default}
+.fab .play[disabled]:hover{background:transparent}
+.fab .play[aria-pressed=true]{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-soft)}
+.fab .play.is-next{border-color:var(--cyan);background:var(--cyan);color:var(--bg)}
+.fab .ctl-pair{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fab .snd-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.fab .snd-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fab .snd-btn:hover{color:var(--text)}
+.fab .snd-btn.is-on{border-color:var(--cyan);color:var(--cyan)}
+.fab .snd-note{font-size:12px;color:var(--muted)}
+.fab .lang-t{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fab .lang-t button{min-width:44px;min-height:44px;padding:0 10px;border:0;background:transparent;color:var(--muted);font:600 13px/1 var(--f-d);cursor:pointer}
+.fab .lang-t button[aria-pressed=true]{background:var(--cyan-soft);color:var(--cyan)}
+.fab .lang-t button:hover{color:var(--text)}
+.fab .play:focus-visible,.fab .snd-btn:focus-visible,.fab .lang-t button:focus-visible,.fab .sbar__s button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* Teléfono (≤ 699 px): la pieza se ve en la página, sin pantalla completa; el alto del escenario y el póster angosto los pone styles.css
+   (el escenario tiene que medir lo mismo antes de bajar este archivo). La cámara y la franja de la bandeja las dibuja fabrica.js. */
+/* La etiqueta «05 / 08 · …» de la esquina dice lo mismo que el título de la barra de escenas; en teléfono chocaría con la bandeja fija, así que solo queda la de la barra. */
+@media (max-width:699px){.fab .sc-tag{display:none}}
