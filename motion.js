@@ -117,9 +117,13 @@
       var first = $('.card__text > .sw-wait', card);
       if (!first || card._mo) return;
       card._mo = true;
+      // etapas en reposo: las tres grises hasta que el recorrido llegue a la tarjeta (nunca nace una en verde)
+      var railEl = $('.rail', card), pend = railEl ? $$('li', railEl) : [];
+      function clearPend() { pend.forEach(function (li) { li.classList.remove('is-pend'); }); }
+      if (!RM()) { pend.forEach(function (li) { li.classList.add('is-pend'); }); track(clearPend); }
       whenBuilt([first], function (quiet) {
-        if (RM() || quiet) { card._mo = false; return; }
-        whenSeen($('.rail', card), 0.9, function () { railRun(card); });
+        if (RM() || quiet) { clearPend(); card._mo = false; return; }
+        whenSeen($('.rail', card), 0.9, function () { railRun(card); }, function () { clearPend(); card._mo = false; });
       });
       var ticket = $('.ticket.sw-wait', card), chips = $$('.matrix .chip', card);
       if (!ticket || !chips.length) return;
@@ -155,6 +159,7 @@
     var done = false;
     function fin() {
       if (done) return; done = true;
+      lis.forEach(function (li) { li.classList.remove('is-pend'); }); // final: tres etapas activas, la última en verde
       line.remove(); lits.forEach(function (s) { s.remove(); });
       card._mo = false;
     }
@@ -164,6 +169,7 @@
         if (done) return;
         await anim(line, [{ transform: 'scaleX(' + (i / 3) + ')' }, { transform: 'scaleX(' + ((i + 1) / 3) + ')' }], { duration: 260, easing: E_STD, fill: 'forwards' });
         if (done) return;
+        lis[i].classList.remove('is-pend'); // cada etapa se activa cuando la barra la alcanza; la tercera (verde) solo al completar
         if (lits[i]) anim(lits[i], [{ opacity: 0 }, { opacity: 1 }], { duration: 150, fill: 'forwards' });
         await wait(120);
       }

@@ -255,8 +255,15 @@ time,.num{font-variant-numeric:tabular-nums}
   font:600 11px/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rail li+li{border-left:1px solid var(--line)}
 .rail li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+/* Etapas: activa = texto claro y punto cian; la última (verificada/publicada/en uso) en verde. Verde solo cuando la tarjeta
+   completó sus tres etapas. Mientras el recorrido no llega a la tarjeta, motion.js pone .is-pend en las tres: parten
+   iguales, en gris neutro; al avanzar la barra cada una pierde .is-pend en orden y la última pasa a verde. */
+.rail li{color:var(--text)}
+.rail li::before{background:var(--cyan)}
 .rail li:last-child{color:var(--ok)}
 .rail li:last-child::before{background:var(--ok)}
+.rail li.is-pend,.rail li.is-pend:last-child{color:var(--muted)}
+.rail li.is-pend::before,.rail li.is-pend:last-child::before{background:var(--muted)}
 .card__body{display:grid;gap:var(--s-6);padding:var(--s-5) var(--s-4)}
 .card__text{display:grid;gap:var(--s-4);align-content:start}
 .card h3{font-size:clamp(26px,7vw,40px);font-weight:700;letter-spacing:-.025em;line-height:1.05}
