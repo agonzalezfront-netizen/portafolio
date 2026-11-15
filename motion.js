@@ -105,6 +105,60 @@
     })(t0);
   }
 
+  /* ===================== Cifras de la portada (ul.hero__stats) =====================
+     Mismo recurso que los KPIs de arriba (valor real para el lector en .sr-only, cifra que cuenta en aria-hidden, curva easeOut3
+     y cuadro con respaldo de temporizador), con los tres números de la portada: parten en 0 al terminar el build del bloque y
+     suben a su valor, escalonados. Sin Recorrido (Saltar, llegada con ancla) cuenta una sola vez cuando el bloque está en pantalla.
+     reduced-motion, Skip a mitad, o cualquier falla: el valor final (el HTML ya lo trae). */
+  var STAT_DUR = 1000, STAT_GAP = 120;
+  function prepStats() {
+    var ul = $('.hero__stats');
+    if (!ul || ul._st || RM()) return;
+    var waiting = ul.classList.contains('sw-wait');
+    if (!waiting && ul._stDone) return; // una sola vez por visita (salvo el rearmado del «Replay tour», que pasa por sw-wait)
+    var items = [];
+    $$('li > b', ul).forEach(function (b) {
+      var m = /^\s*(\d+)(\D*)\s*$/.exec(b.textContent), tn = b.firstChild;
+      if (!m || !tn || tn.nodeType !== 3 || b.childNodes.length !== 1) return;
+      var sr = document.createElement('span'); sr.className = 'sr-only'; sr.textContent = b.textContent;
+      var vis = document.createElement('span'); vis.setAttribute('aria-hidden', 'true'); vis.textContent = '0' + m[2];
+      items.push({ b: b, tn: tn, sr: sr, vis: vis, to: +m[1], suf: m[2] });
+    });
+    if (!items.length) return;
+    var st = ul._st = { items: items, ran: false };
+    items.forEach(function (it) { it.b.replaceChild(it.vis, it.tn); it.b.insertBefore(it.sr, it.vis); });
+    function final() {
+      if (ul._st !== st) return;
+      ul._st = null; ul._stDone = true;
+      items.forEach(function (it) { it.b.textContent = ''; it.b.appendChild(it.tn); }); // DOM final idéntico al original
+    }
+    function run() {
+      if (ul._st !== st || st.ran) return;
+      st.ran = true;
+      var untrack = track(function () { final(); }), t0 = performance.now();
+      (function f(now) {
+        if (ul._st !== st) { untrack(); return; }
+        var t = now - t0, end = true;
+        items.forEach(function (it, i) {
+          var p = Math.max(0, Math.min(1, (t - i * STAT_GAP) / STAT_DUR));
+          it.vis.textContent = Math.round(it.to * easeOut3(p)) + it.suf;
+          if (p < 1) end = false;
+        });
+        if (!end) { frame(f); return; }
+        final(); untrack();
+      })(t0);
+      setTimeout(function () { final(); untrack(); }, STAT_DUR + STAT_GAP * items.length + 400); // red: nunca queda a medias
+    }
+    function seen() { try { whenSeen(ul, 0.5, run); } catch (e) { final(); } }
+    if (waiting) {
+      ul.addEventListener('built', function on(e) {
+        if (e.target !== ul) return;
+        ul.removeEventListener('built', on);
+        if (e.detail && e.detail.quiet) seen(); else run(); // quiet: sin Recorrido (Saltar, llegada) → cuenta al estar en pantalla
+      });
+    } else seen();
+  }
+
   /* ===================== P9 · Raíl Spec → Build → Verified y «pass» en cadena =====================
      Estado real: el raíl NO lo arma el rebuild (es estático) y su diseño final ya tiene «Verified/Shipped» en verde.
      Adaptación: al quedar armada la tarjeta, una línea cian recorre el borde del raíl tramo a tramo y enciende cada
@@ -543,6 +597,7 @@
     prepWord();
     prepPortrait();
     prepKpis();
+    prepStats();
     prepBoard();
     prepCards();
     prepSteps();
@@ -550,5 +605,7 @@
   document.addEventListener('swarm:init', prepAll);
   // lo demás, cuando swarm.js ya marcó sus unidades (DOMContentLoaded llega después de los scripts defer)
   function boot() { initParallax(); initSeam(); initPulse(); initHeadroom(); }
+  // sin enjambre (sin IntersectionObserver, motor apagado): las cifras cuentan al estar en pantalla; con enjambre lo hace prepAll
+  window.addEventListener('load', function () { setTimeout(function () { try { if (!RM() && !busy() && !root.classList.contains('sw-stage')) prepStats(); } catch (e) {} }, 800); });
   if (document.readyState === 'complete') boot(); else document.addEventListener('DOMContentLoaded', boot);
 })();

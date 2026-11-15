@@ -148,6 +148,7 @@ time,.num{font-variant-numeric:tabular-nums}
 .hero__stats li+li{padding-left:var(--s-3);border-left:1px solid var(--line)}
 .hero__stats b{font:600 32px/1 var(--f-display);letter-spacing:-.02em;color:var(--cyan);font-variant-numeric:tabular-nums}
 .hero__stats span{font:600 11px/1.35 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hero__stats b>span{font:inherit;letter-spacing:inherit;text-transform:none;color:inherit} /* la cifra que cuenta (motion.js) hereda la de la <b>, no la etiqueta */
 
 .hero__note{position:relative;z-index:2;display:flex;align-items:center;gap:var(--s-3);margin-top:var(--s-5);font-size:14px;line-height:1.45;color:var(--text);max-width:30ch}
 .hero__note-ico{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--cyan-line)}
