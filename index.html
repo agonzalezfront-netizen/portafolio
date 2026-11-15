@@ -48,7 +48,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&family=Herr+Von+Muellerhoff&family=Space+Grotesk:wght@500;600;700&display=swap">
 <link rel="preload" as="image" href="img/alberto.webp" media="(min-width:768px)" fetchpriority="high">
 <link rel="preload" as="image" href="img/alberto-700.webp" media="(max-width:767px)" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=9c960a89">
+<link rel="stylesheet" href="styles.css?v=724fc91f">
 <script src="motion.js?v=2275d51b" defer></script>
 <script src="swarm.js?v=e37504c4" defer></script>
 </head>
@@ -586,7 +586,7 @@ var v=document.getElementById(o.getAttribute('aria-controls'));if(v)v.hidden=!on
    Funciona igual por http y por file:// (script clásico insertado, sin fetch ni módulos; con file:// la voz suena por <audio>).
    Teléfono (≤ 699 px): la pieza se ve en la página con una cámara que la recorre (fabrica.js); el póster angosto lo pone styles.css. */
 (function(){var fig=document.getElementById('fabrica'),go=document.getElementById('fab-go');if(!fig||!go)return;
-var box=document.getElementById('seq-box'),stage=document.getElementById('seq'),VER='20261114d';
+var box=document.getElementById('seq-box'),stage=document.getElementById('seq'),VER='20261115v';
 var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 var I=window.__i18n,tr=function(k,en){return I?I.t(k):en;};
 if(rm){fig.classList.add('fab--rm');go.querySelector('.fab__lbl').textContent=tr('fab.anyway','Watch anyway');}

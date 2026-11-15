@@ -413,7 +413,8 @@ time,.num{font-variant-numeric:tabular-nums}
 .fab__rm{display:none;margin-top:var(--s-2);color:var(--muted);font-size:14px}
 .fab--rm:not(.is-on) .fab__rm{display:block}
 @media (max-width:699px){
-  .fab__stage{aspect-ratio:auto;height:430.5px;width:auto;margin:0 calc(-1 * var(--gutter));border-radius:0;border-left:0;border-right:0}
+  /* cuadro vertical nativo de la pieza (fabrica.js: VW × VH = 360 × 480); con la cámara de antes (CAMARA, .fab--cam) vuelve a 430,5 px en fabrica.css */
+  .fab__stage{aspect-ratio:360/480;height:auto;width:auto;margin:0 calc(-1 * var(--gutter));border-radius:0;border-left:0;border-right:0}
 }
 
 /* Póster C «Titular» (propuesta elegida el 14-11, _revision/poster-propuestas/). Solo tokens; Space Grotesk 700 en el titular

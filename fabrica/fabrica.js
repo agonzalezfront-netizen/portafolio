@@ -135,20 +135,30 @@
    * así que a 360 px se ven ~343 de las 640 unidades: una cámara recorre cada escena siguiendo la acción (CAM, más abajo).
    * Arriba se suma una franja de HB unidades donde vive la bandeja «Lección por aprender», fija en pantalla (no se va con la cámara),
    * en dos renglones y con su texto a ≥ 11 px. Mismo contenido, mismos tiempos y mismo orden de escenas que la fuente. */
-  var PS = 1.05, HB = 50;
+  /* [portafolio] Interruptor del teléfono (15-11): CAMARA = true vuelve a la versión de la cámara de seguimiento sobre el cuadro ancho
+   * (14-11, código intacto: todo lo marcado PH); false (vigente) = composición VERTICAL nativa: cuadro de VW × VH unidades, sin cámara,
+   * con cada escena re-dispuesta por la tabla DISP (más abajo). Contenido, textos, tiempos, audio y rótulos son los mismos en los dos. */
+  var CAMARA = false;
+  var PS = 1.05, HB = 50, VW = 360, VH = 480;
   var MQ = (EMB && window.matchMedia) ? window.matchMedia('(max-width: 699px)') : null;
-  var PH = !!(MQ && MQ.matches);
+  var PHONE = !!(MQ && MQ.matches), PH = CAMARA && PHONE, VERT = !CAMARA && PHONE;
+  if (CAMARA && EMB) { var FIG = document.getElementById('fabrica'); if (FIG) FIG.classList.add('fab--cam'); }
   var TRAY_S, TRAY_LBL;
-  function trayK() { TRAY_S = PH ? .85 : .56; TRAY_LBL = PH ? 11 : 7.5; }
+  function trayK() { TRAY_S = PHONE ? .85 : .56; TRAY_LBL = PHONE ? 11 : 7.5; }
   trayK();
   function trayGeo() {
     var lab = X().tray, fx = X().sc[4].fix, nw = fx.length * 7.4 + 22, tw = lab.length * 5.4 * TRAY_LBL / 7.5, sx = 30 + 10 + tw + 8;
+    if (VERT) return {lab: lab, fx: fx, nw: nw, sx: 28, sy: 25, w: VW - 32, vt: 1};
     if (PH) return {lab: lab, fx: fx, nw: nw, sx: 18, sy: -HB + 22, w: Math.max(tw, nw * TRAY_S) + 22, ph: 1};
     return {lab: lab, fx: fx, nw: nw, sx: sx, sy: 5 + (24 - 26 * TRAY_S) / 2, w: 10 + tw + 8 + nw * TRAY_S + 4 + 6};
   }
   function lessonTray(p) {
     var G = trayGeo(), g = S('g', {'data-p': 'tray'}, p), glow, box;
-    if (G.ph) {   // [portafolio] franja superior: rótulo arriba, hueco del arreglo abajo; data-hud = la sigue la cámara (queda quieta en pantalla)
+    if (G.vt) {   // [portafolio] vertical: franja de ancho completo arriba; rótulo arriba, hueco del arreglo abajo
+      glow = S('rect', {x: 13, y: 1, width: G.w + 6, height: 52, rx: 10, fill: 'none', stroke: C.warn, 'stroke-width': 2, opacity: 0}, g);
+      box = S('rect', {x: 16, y: 4, width: G.w, height: 46, rx: 8, fill: C.bg1, stroke: C.line, 'stroke-width': 1.2}, g);
+      T(g, 28, 19, G.lab, {size: TRAY_LBL, w: 600, fill: C.muted, ls: '.1em'});
+    } else if (G.ph) {   // [portafolio] franja superior: rótulo arriba, hueco del arreglo abajo; data-hud = la sigue la cámara (queda quieta en pantalla)
       g.setAttribute('data-hud', '1');
       glow = S('rect', {x: 5, y: -HB + 1, width: G.w + 6, height: HB - 2, rx: 10, fill: 'none', stroke: C.warn, 'stroke-width': 2, opacity: 0}, g);
       box = S('rect', {x: 8, y: -HB + 4, width: G.w, height: HB - 5, rx: 8, fill: C.bg1, stroke: C.line, 'stroke-width': 1.2}, g);
@@ -174,27 +184,53 @@
    * Cada rótulo queda en pantalla hasta que entra el siguiente (sin hueco al cambiar de escena). */
   var SC = [];
 
+  /* [portafolio] Disposición por formato. Cada escena se escribe UNA vez (qué elementos, qué textos, cuándo) sobre su composición base de
+   * 640 × 360 (escritorio y tablet, igual que siempre). Para el teléfono vertical, DISP.v[n] dice DÓNDE va cada bloque de esa composición:
+   *   b: {bloque: [ax, ay, bx, by, s]}  el punto (ax, ay) del cuadro ancho cae en (bx, by) del cuadro vertical, a escala s (un grupo <g>);
+   *   v: {clave: valor}                 medidas o rutas que en vertical cambian (ancho de una fila, curva de un viaje, tamaño de un marco).
+   * Un bloque o una clave pueden ser función de los textos del idioma (x) para medir anchos. Sin entrada (escritorio), D.b devuelve el
+   * mismo padre, D.m el mismo punto y D.v el valor base: el escritorio no cambia en nada. Los viajes entre bloques usan D.m en sus dos puntas. */
+  var DISP = {v: []};
+  function disp(n) {
+    var ly = VERT ? DISP.v[n] : null, made = {}, x = X().sc[n];
+    function spec(k) { var s = ly && ly.b && ly.b[k]; if (typeof s === 'function') s = s(x); if (s && s.length === 4) s = s.concat(1); return s; }
+    return {
+      on: !!ly,
+      b: function (k, p) {
+        var s = spec(k); if (!s) return p;
+        if (!made[k]) made[k] = S('g', {'data-b': k, transform: 'translate(' + (s[2] - s[0] * s[4]).toFixed(2) + ' ' + (s[3] - s[1] * s[4]).toFixed(2) + ')' + (s[4] !== 1 ? ' scale(' + s[4] + ')' : '')}, p);
+        return made[k];
+      },
+      m: function (k, px, py) { var s = spec(k); return s ? [s[2] + (px - s[0]) * s[4], s[3] + (py - s[1]) * s[4]] : [px, py]; },
+      s: function (k) { var s = spec(k); return s ? s[4] : 1; },
+      v: function (k, def) { if (!ly || !ly.v || !(k in ly.v)) return def; var o = ly.v[k]; return typeof o === 'function' ? o(x, def) : o; }
+    };
+  }
+
   // E1 · Spec — 4,0 s. Ficha + cursor + borde (0,2–1,0) · título (1,0–1,6) · 3 criterios (1,6–2,5) · chip (2,5–2,95). Quieto desde 2,95.
   SC.push({id: 'spec', dur: 4.0, caps: [.2],
-    build: function (g, x) {
-      var po = chip(g, 40, 36, x.po, C.po);
-      var fill = S('rect', {x: 180, y: 78, width: 258, height: 196, rx: 12, fill: C.sf}, g);
-      var out = drawable(S('rect', {x: 180, y: 78, width: 258, height: 196, rx: 12, fill: 'none', stroke: C.cyan, 'stroke-width': 1.5}, g));
-      var eb = T(g, 202, 108, x.spec, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
-      var TITLE = x.title, title = T(g, 202, 138, '', {size: 19, w: 600});
-      var dw = T(g, 202, 168, x.done, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
+    build: function (g, x, ov, D) {
+      var po = chip(D.b('po', g), 40, 36, x.po, C.po), cg = D.b('card', g);
+      var fill = S('rect', {x: 180, y: 78, width: 258, height: 196, rx: 12, fill: C.sf}, cg);
+      var out = drawable(S('rect', {x: 180, y: 78, width: 258, height: 196, rx: 12, fill: 'none', stroke: C.cyan, 'stroke-width': 1.5}, cg));
+      var eb = T(cg, 202, 108, x.spec, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
+      var TITLE = x.title, title = T(cg, 202, 138, '', {size: 19, w: 600});
+      var dw = T(cg, 202, 168, x.done, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
       var rows = x.rows.map(function (s, i) {
-        var y = 190 + i * 28, r = S('g', {}, g);
+        var y = 190 + i * 28, r = S('g', {}, cg);
         S('rect', {x: 202, y: y - 11, width: 13, height: 13, rx: 3, fill: 'none', stroke: C.cyan, 'stroke-width': 1.3}, r);
         var ck = drawable(S('path', {d: 'M204.6 ' + (y - 4.5) + 'l3 3 5.5-6', fill: 'none', stroke: C.cyan, 'stroke-width': 1.8, 'stroke-linecap': 'round'}, r));
         T(r, 224, y, s, {size: 14}); return {g: r, ck: ck};
       });
-      var ready = chip(g, 452, 78, x.ready, C.ok, {outline: true});
+      var ready = chip(D.b('ready', g), 452, 78, x.ready, C.ok, {outline: true});
       var cur = cursor(g, C.po);
       // El cursor DIBUJA el borde: va en la punta del trazo durante toda la vuelta (0,25–1,0), no detrás.
+      // (fuera de los bloques: sus puntos pasan por D.m para caer sobre la ficha y el chip donde estén en cada formato)
       var OL = 0; try { OL = out.getTotalLength(); } catch (e) { OL = 0; }
-      function tip(p) { try { var q = out.getPointAtLength(OL * cl(p)); return [q.x, q.y]; } catch (e) { return [192, 78]; } }
-      var K = [[1.0, 192, 78], [1.1, 206, 142], [1.6, 206 + TITLE.length * 9.8, 142], [1.9, 210, 190], [2.4, 210, 246], [2.95, 500, 112]];
+      function tip(p) { try { var q = out.getPointAtLength(OL * cl(p)); return D.m('card', q.x, q.y); } catch (e) { return D.m('card', 192, 78); } }
+      var K = [[1.0, 192, 78], [1.1, 206, 142], [1.6, 206 + TITLE.length * 9.8, 142], [1.9, 210, 190], [2.4, 210, 246], [2.95, 500, 112]].map(function (k, i) {
+        var m = D.m(i < 5 ? 'card' : 'ready', k[1], k[2]); return [k[0], m[0], m[1]]; });
+      var C0 = D.m('po', 120, 64);
       return function (t) {
         op(po.g, sg(t, .2, .45));
         draw(out, sg(t, .25, 1.0, lin)); op(fill, sg(t, .7, 1.0) * .96);
@@ -204,7 +240,7 @@
         rows.forEach(function (r, i) { var p = sg(t, 1.6 + i * .2, 1.9 + i * .2); op(r.g, p); tr(r.g, (1 - p) * -8, 0); draw(r.ck, sg(t, 1.95 + i * .17, 2.15 + i * .17, lin)); });
         var pr = sg(t, 2.5, 2.95); op(ready.g, pr); tr(ready.g, 452, 78 + (1 - pr) * 6);
         var c;
-        if (t < .25) { var s0 = tip(0), a0 = sg(t, .2, .25); c = [L(120, s0[0], a0), L(64, s0[1], a0)]; }
+        if (t < .25) { var s0 = tip(0), a0 = sg(t, .2, .25); c = [L(C0[0], s0[0], a0), L(C0[1], s0[1], a0)]; }
         else if (t < 1.0 && OL) c = tip(sg(t, .25, 1.0, lin));
         else c = kf(t, K);
         tr(cur, c[0], c[1]); op(cur, sg(t, .2, .35));
@@ -213,24 +249,24 @@
 
   // E2 · Orden y plan — 3,6 s. Cortex (0,2) · reordenamiento en bloque (0,5–1,3) · TL + ruta (1,4–2,0) · 3 nodos (2,0–2,6).
   SC.push({id: 'order', dur: 3.6, caps: [.2],
-    build: function (g, x) {
-      var cx = chip(g, 40, 36, x.cortex, C.cortex);
-      T(g, 60, 96, x.next, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
+    build: function (g, x, ov, Y) {   // Y: la disposición (aquí D es una tarjeta)
+      var cx = chip(Y.b('cx', g), 40, 36, x.cortex, C.cortex), q = Y.b('q', g);
+      T(q, 60, 96, x.next, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
       for (var i = 0; i < 4; i++) {
-        T(g, 46, 132 + i * 50, String(i + 1), {size: 14, fill: C.muted, anchor: 'middle', w: 600});
-        S('rect', {x: 60, y: 106 + i * 50, width: 210, height: 40, rx: 8, fill: 'none', stroke: C.line, 'stroke-dasharray': '3 4'}, g);
+        T(q, 46, 132 + i * 50, String(i + 1), {size: 14, fill: C.muted, anchor: 'middle', w: 600});
+        S('rect', {x: 60, y: 106 + i * 50, width: 210, height: 40, rx: 8, fill: 'none', stroke: C.line, 'stroke-dasharray': '3 4'}, q);
       }
       function card(label, hl) {
-        var c = S('g', {}, g);
+        var c = S('g', {}, q);
         S('rect', {x: 0, y: 0, width: 210, height: 40, rx: 8, fill: C.sf, stroke: hl ? C.cyan : C.line, 'stroke-width': hl ? 1.5 : 1}, c);
         S('rect', {x: 0, y: 8, width: 3, height: 24, rx: 1.5, fill: hl ? C.cyan : C.muted}, c);
         T(c, 16, 25, label, {size: 14, w: hl ? 600 : 500}); return c;
       }
       var A = card(x.cards[0]), B = card(x.cards[1]), D = card(x.cards[2]), N = card(x.cards[3], true);
       tr(A, 60, 106);
-      var tl = chip(g, 330, 96, x.tl, C.tl);
-      var path = drawable(S('path', {d: 'M270 176 C 310 176, 330 176, 360 176 S 425 240, 460 240 S 530 176, 570 176', fill: 'none', stroke: C.cyan, 'stroke-width': 1.6}, g));
-      var nodes = [[360, 176], [460, 240], [570, 176]].map(function (n, j) {
+      var tl = chip(Y.b('tl', g), 330, 96, x.tl, C.tl), NS = Y.v('nStart', [420, 110]);
+      var path = drawable(S('path', {d: Y.v('path', 'M270 176 C 310 176, 330 176, 360 176 S 425 240, 460 240 S 530 176, 570 176'), fill: 'none', stroke: C.cyan, 'stroke-width': 1.6}, g));
+      var nodes = Y.v('nodes', [[360, 176], [460, 240], [570, 176]]).map(function (n, j) {
         var c = S('circle', {cx: n[0], cy: n[1], r: 8, fill: C.bg, stroke: C.cyan, 'stroke-width': 1.6}, g);
         var l = T(g, n[0], n[1] + 30, x.nodes[j], {size: 14, anchor: 'middle', w: 600});
         return {c: c, l: l, at: 2.0 + j * .2};
@@ -239,7 +275,7 @@
         op(cx.g, sg(t, .2, .45));
         var p = sg(t, .5, 1.3);
         tr(B, 60, L(156, 206, p)); tr(D, 60, L(206, 256, p));
-        tr(N, L(420, 60, p), L(110, 156, p)); op(N, sg(t, .2, .5));
+        tr(N, L(NS[0], 60, p), L(NS[1], 156, p)); op(N, sg(t, .2, .5));
         op(tl.g, sg(t, 1.4, 1.65));
         draw(path, sg(t, 1.45, 2.0, lin));
         nodes.forEach(function (n) { var on = sg(t, n.at, n.at + .2); n.c.setAttribute('fill', on > .5 ? C.cyan : C.bg); op(n.l, .25 + .75 * on); op(n.c, sg(t, 1.45, 1.65)); });
@@ -248,9 +284,9 @@
 
   // E3 · Equipo y espacio — 3,9 s. Fichas ya presentes · 3 máquinas (0,2–0,9) · Dev 8 «working» (1,0) · PC 3 cian + píldora (1,3–2,3) · barra y margen (2,3–2,9).
   SC.push({id: 'room', dur: 3.9, caps: [.2],
-    build: function (g, x) {
+    build: function (g, x, ov, D) {
       var F = [['PO', 'free', C.po], ['TL', 'planning', C.tl], ['Dev 8', 'free', C.dev8], ['verif-5', 'waiting', C.v5]].map(function (a, i) {
-        var f = S('g', {}, g);
+        var f = S('g', {}, D.b('f' + i, g));
         S('rect', {x: 0, y: 0, width: 136, height: 54, rx: 10, fill: C.sf, stroke: C.line}, f);
         S('circle', {cx: 24, cy: 27, r: 12, fill: a[2], opacity: .9}, f);
         T(f, 44, 24, a[0], {size: 14, w: 600});
@@ -260,7 +296,7 @@
         return {g: f, dot: dot, st: st};
       });
       var M = [['PC 1', 62, C.warn, x.last, 3], ['PC 2', 88, C.err, x.full, 5], ['PC 3', 41, C.ok, x.room3, 2]].map(function (m, i) {
-        var g2 = S('g', {}, g), gx = 40 + i * 200;
+        var g2 = S('g', {}, D.b('m' + i, g)), gx = 40 + i * 200;
         tr(g2, gx, 150);
         S('rect', {x: 0, y: 0, width: 176, height: 140, rx: 12, fill: C.sf, stroke: C.line}, g2);
         T(g2, 16, 30, m[0], {size: 16, w: 600});
@@ -277,14 +313,14 @@
       var pill = S('g', {}, g);
       S('rect', {x: -40, y: -12, width: 80, height: 24, rx: 12, fill: C.dev8}, pill);
       var pillT = T(pill, 0, 4.5, x.session, {size: 12, w: 600, fill: C.bg1, anchor: 'middle'});
-      var nb = M[2];
+      var nb = M[2], P0 = D.m('f2', 404, 112), P1 = D.m('m2', 498, 270), ARC = D.v('arc', [0, -50]);   // la sesión viaja de Dev 8 al PC 3
       return function (t) {
         var on = t >= 1.0; F[2].st.textContent = on ? x.st.working : x.st.free; F[2].dot.setAttribute('fill', on ? C.cyan : C.ok);
         M.forEach(function (m, i) { var p = sg(t, .2 + i * .2, .5 + i * .2); op(m.g, p); tr(m.g, 40 + i * 200, 150 + (1 - p) * 8); });
         op(nb.scan, sg(t, 1.3, 1.45) * (1 - sg(t, 2.6, 2.9)));
-        var p = sg(t, 1.35, 2.2, eio), px = L(404, 498, p), py = L(112, 270, p) - 50 * Math.sin(Math.PI * p);
+        var p = sg(t, 1.35, 2.2, eio), px = L(P0[0], P1[0], p) + ARC[0] * Math.sin(Math.PI * p), py = L(P0[1], P1[1], p) + ARC[1] * Math.sin(Math.PI * p);
         var s = 1 - .6 * sg(t, 2.1, 2.3); tr(pill, px, py, s); op(pill, sg(t, 1.3, 1.45) * (1 - sg(t, 2.2, 2.32)));
-        if (PH) op(pillT, 1 - sg(t, 2.08, 2.14));   // [portafolio] el rótulo se apaga antes de achicarse (nunca se ve bajo 11 px)
+        if (PHONE) op(pillT, 1 - sg(t, 2.08, 2.14));   // [portafolio] el rótulo se apaga antes de achicarse (nunca se ve bajo 11 px)
         var land = sg(t, 2.3, 2.9), v = Math.round(L(41, 53, land));
         nb.bar.setAttribute('width', (144 * v / 100).toFixed(1)); nb.pct.textContent = v + ' %';
         nb.mg.textContent = t >= 2.6 ? x.room2 : x.room3;
@@ -335,49 +371,52 @@
   // E4 · Sistema de diseño → Staging + sello — 6,2 s. Lámina (0,2–1,3) · foco en la tarjeta + cursor (1,5–1,9) · marco Staging (1,85–2,25) ·
   // viaje y encaje (2,3–3,05) · 3 controles uno a uno (3,15–4,1) · sello (4,15–4,75) · carril y Production apagados (4,8–5,2). Quieto desde 5,2.
   SC.push({id: 'build', dur: 6.2, caps: [.2],
-    build: function (g, x) {
-      var dsm = S('g', {'data-p': 'dsm'}, g);
-      S('rect', {x: 22, y: 60, width: 130, height: 238, rx: 12, fill: C.sf, stroke: C.line}, dsm);
-      T(dsm, PH ? 30 : 34, 84, x.ds, PH ? {size: 11, fill: C.muted, w: 600, ls: '.02em'} : {size: 10, fill: C.muted, w: 600, ls: '.08em'});   // [portafolio] teléfono: 11
-      var tok = S('g', {}, g);
+    build: function (g, x, ov, D) {
+      // Lámina del sistema de diseño: su caja y su rótulo son de la disposición (en vertical es una franja ancha arriba)
+      var dsm = S('g', {'data-p': 'dsm'}, g), DB = D.v('dsmBox', [22, 60, 130, 238]), DL = D.v('dsmLab', [PH ? 30 : 34, 84]);
+      S('rect', {x: DB[0], y: DB[1], width: DB[2], height: DB[3], rx: 12, fill: C.sf, stroke: C.line}, dsm);
+      T(dsm, DL[0], DL[1], x.ds, PH ? {size: 11, fill: C.muted, w: 600, ls: '.02em'} : (VERT ? {size: 11, fill: C.muted, w: 600, ls: '.08em'} : {size: 10, fill: C.muted, w: 600, ls: '.08em'}));   // [portafolio] teléfono: 11
+      var tok = S('g', {}, D.b('tok', g));
       [C.cyan, C.ok, C.warn, C.text].forEach(function (c, i) { S('circle', {cx: 41 + i * 18, cy: 106, r: 7, fill: c}, tok); });
       T(tok, 116, 111.5, 'Aa', {size: 15, w: 600});
       S('path', {d: 'M34 126H140', stroke: C.line}, tok);
       var cmp = [];
-      var b1 = S('g', {}, g); S('rect', {x: 0, y: 0, width: 56, height: 16, rx: 8, fill: C.cyan}, b1); tr(b1, 34, 140); cmp.push(b1);
-      var b2 = S('g', {}, g); S('rect', {x: 0, y: 0, width: 104, height: 16, rx: 4, fill: 'none', stroke: C.muted}, b2); S('rect', {x: 8, y: 6, width: 36, height: 4, rx: 2, fill: C.sf2}, b2); tr(b2, 34, 166); cmp.push(b2);
-      var base = cardComp(g); tr(base, 34, 194); cmp.push(base);
-      var b4 = S('g', {}, g); S('rect', {x: 0, y: 0, width: 28, height: 14, rx: 7, fill: C.ok, opacity: .85}, b4); S('circle', {cx: 21, cy: 7, r: 5, fill: C.bg1}, b4);
+      var b1 = S('g', {}, D.b('b1', g)); S('rect', {x: 0, y: 0, width: 56, height: 16, rx: 8, fill: C.cyan}, b1); tr(b1, 34, 140); cmp.push(b1);
+      var b2 = S('g', {}, D.b('b2', g)); S('rect', {x: 0, y: 0, width: 104, height: 16, rx: 4, fill: 'none', stroke: C.muted}, b2); S('rect', {x: 8, y: 6, width: 36, height: 4, rx: 2, fill: C.sf2}, b2); tr(b2, 34, 166); cmp.push(b2);
+      var base = cardComp(D.b('base', g)); tr(base, 34, 194); cmp.push(base);
+      var b4 = S('g', {}, D.b('b4', g)); S('rect', {x: 0, y: 0, width: 28, height: 14, rx: 7, fill: C.ok, opacity: .85}, b4); S('circle', {cx: 21, cy: 7, r: 5, fill: C.bg1}, b4);
       S('rect', {x: 36, y: 0, width: 50, height: 14, rx: 7, fill: 'none', stroke: C.line}, b4); tr(b4, 34, 264); cmp.push(b4);
-      var ring = drawable(S('rect', {x: 29, y: 189, width: 114, height: 66, rx: 9, fill: 'none', stroke: C.cyan, 'stroke-width': 1.8, 'data-p': 'focus'}, g));
-      var stg = envFrame(g, 166, 60, 286, 238, x.stg);
+      var ring = drawable(S('rect', {x: 29, y: 189, width: 114, height: 66, rx: 9, fill: 'none', stroke: C.cyan, 'stroke-width': 1.8, 'data-p': 'focus'}, D.b('base', g)));
+      var sb = D.b('stg', g), stg = envFrame(sb, 166, 60, D.v('stgW', 286), 238, x.stg);
       stg.g.setAttribute('data-p', 'stg');
       var scr = screenMock(stg.g, false); tr(scr.g, 178, 94);
-      var flash = S('rect', {x: 186, y: 140, width: 104, height: 56, rx: 6, fill: 'none', stroke: C.cyan, 'stroke-width': 2, opacity: 0}, g);
-      var ckh = S('g', {}, g);
+      var flash = S('rect', {x: 186, y: 140, width: 104, height: 56, rx: 6, fill: 'none', stroke: C.cyan, 'stroke-width': 2, opacity: 0}, sb);
+      var kb = D.b('ck', g), ckh = S('g', {}, kb);
       T(ckh, 312, 106, x.checks, {size: 11, fill: C.muted, w: 600, ls: '.1em'});
       var ck = x.ck.map(function (s, i) {
         var y = 134 + i * 32;
         S('circle', {cx: 322, cy: y - 5, r: 9, fill: 'none', stroke: C.line, 'stroke-width': 1}, ckh);
-        var rr = drawable(S('circle', {cx: 322, cy: y - 5, r: 9, fill: 'none', stroke: C.ok, 'stroke-width': 1.6}, g));
-        var m = drawable(S('path', {d: 'M317.5 ' + (y - 5) + 'l3 3 6-6.5', fill: 'none', stroke: C.ok, 'stroke-width': 2, 'stroke-linecap': 'round', 'data-p': 'ck' + i}, g));
-        var tx = T(g, 338, y, s, {size: 13, w: 600}); return {ring: rr, m: m, tx: tx};
+        var rr = drawable(S('circle', {cx: 322, cy: y - 5, r: 9, fill: 'none', stroke: C.ok, 'stroke-width': 1.6}, kb));
+        var m = drawable(S('path', {d: 'M317.5 ' + (y - 5) + 'l3 3 6-6.5', fill: 'none', stroke: C.ok, 'stroke-width': 2, 'stroke-linecap': 'round', 'data-p': 'ck' + i}, kb));
+        var tx = T(kb, 338, y, s, {size: 13, w: 600}); return {ring: rr, m: m, tx: tx};
       });
-      var seal = S('g', {}, g);
+      var seal = S('g', {}, kb);
       S('circle', {cx: 0, cy: 0, r: 30, fill: C.ok, opacity: .1}, seal);
       var sr = drawable(S('circle', {cx: 0, cy: 0, r: 30, fill: 'none', stroke: C.ok, 'stroke-width': 2}, seal));
       var st = T(seal, 0, 6, x.sealed, {size: 16, fam: FX, w: 400, fill: C.ok, anchor: 'middle', ls: '.04em'});
       st.setAttribute('data-p', 'seal');
       tr(seal, 382, 250);
       // Carril apagado hacia Production: aquí NO se enciende (falta la revisión de E5 y la mía de E7)
-      var lane = S('g', {}, g);
-      S('path', {d: 'M455 179H479', stroke: C.line, 'stroke-width': 1.6, 'stroke-dasharray': '3 3'}, lane);
-      S('path', {d: 'M476 174.5l5 4.5-5 4.5', fill: 'none', stroke: C.line, 'stroke-width': 1.6, 'stroke-linecap': 'round'}, lane);
-      var prod = envFrame(g, 486, 60, 132, 238, x.prod);
-      S('rect', {x: 492, y: 94, width: 120, height: 200, rx: 8, fill: 'none', stroke: C.line, 'stroke-dasharray': '4 4'}, prod.g);
+      var lane = S('g', {}, g), LN = D.v('lane', ['M455 179H479', 'M476 174.5l5 4.5-5 4.5']);
+      S('path', {d: LN[0], stroke: C.line, 'stroke-width': 1.6, 'stroke-dasharray': '3 3'}, lane);
+      S('path', {d: LN[1], fill: 'none', stroke: C.line, 'stroke-width': 1.6, 'stroke-linecap': 'round'}, lane);
+      var PB = D.v('prodBox', [486, 60, 132, 238]), PP = D.v('prodPh', [492, 94, 120, 200]), prod = envFrame(g, PB[0], PB[1], PB[2], PB[3], x.prod);
+      S('rect', {x: PP[0], y: PP[1], width: PP[2], height: PP[3], rx: 8, fill: 'none', stroke: C.line, 'stroke-dasharray': '4 4'}, prod.g);
       envState(prod, 'off'); prod.box.setAttribute('data-p', 'prod');
       var fly = cardComp(g); fly.setAttribute('data-p', 'fly');
       var cur = cursor(g, C.dev8);
+      // La tarjeta viaja de la lámina (bloque base) al hueco de la pantalla de Staging (bloque stg); el cursor la toma en la lámina
+      var F0 = D.m('base', 34, 194), F1 = D.m('stg', 186, 140), FA = D.v('arc', [0, -38]), CA = D.m('base', 150, 250), CB = D.m('base', 92, 226);
       return function (t) {
         var a = sg(t, .2, .55); op(dsm, a); dsm.setAttribute('transform', 'translate(0 ' + ((1 - a) * 8).toFixed(2) + ')');
         op(tok, sg(t, .45, .85));
@@ -386,12 +425,12 @@
         draw(ring, sg(t, 1.5, 1.9, lin)); op(ring, 1 - sg(t, 2.6, 2.9));
         var s1 = sg(t, 1.85, 2.25); op(stg.g, s1); stg.g.setAttribute('transform', 'translate(0 ' + ((1 - s1) * 8).toFixed(2) + ')');
         var p = sg(t, 2.3, 2.95, eio), arc = Math.sin(Math.PI * p);
-        var fx = L(34, 186, p), fy = L(194, 140, p) - 38 * arc;
+        var fx = L(F0[0], F1[0], p) + FA[0] * arc, fy = L(F0[1], F1[1], p) + FA[1] * arc;
         tr(fly, fx, fy, 1 + .08 * arc); op(fly, t < 2.3 ? 0 : 1);
         op(scr.slot, 1 - sg(t, 2.85, 2.95));
         op(flash, sg(t, 2.95, 3.05) * (1 - sg(t, 3.2, 3.5)));
         envState(stg, t >= 4.5 ? 'ok' : (t >= 2.95 ? 'now' : 'idle'));
-        var cx0 = t < 2.3 ? L(150, 92, sg(t, 1.5, 1.85)) : fx + 70, cy0 = t < 2.3 ? L(250, 226, sg(t, 1.5, 1.85)) : fy + 34;
+        var cx0 = t < 2.3 ? L(CA[0], CB[0], sg(t, 1.5, 1.85)) : fx + 70, cy0 = t < 2.3 ? L(CA[1], CB[1], sg(t, 1.5, 1.85)) : fy + 34;
         tr(cur, cx0, cy0); op(cur, sg(t, 1.5, 1.65) * (1 - sg(t, 3.0, 3.15)));
         op(ckh, sg(t, 3.1, 3.3));
         ck.forEach(function (c, i) { var a2 = 3.15 + i * .3; draw(c.ring, sg(t, a2, a2 + .25, lin)); draw(c.m, sg(t, a2 + .2, a2 + .35, lin)); op(c.tx, sg(t, a2, a2 + .2)); });
@@ -407,53 +446,58 @@
   // Bandeja: la nota, ya entregada, se aparta junto al hueco que arregló (5,95–6,25); la bandeja «Lección por aprender» se abre (7,5–7,8);
   // con la fila en verde la nota viaja a la bandeja y queda guardada (8,05–8,75, rodeando la pantalla y los chips) · la bandeja destella (8,75–9,0). Quieto desde 9,0.
   SC.push({id: 'verify', dur: 10.0, caps: [.2, 3.5, 7.4],
-    build: function (g, x, ov) {
-      chip(g, 40, 36, x.dev, C.dev8);
-      var vf = chip(g, 330, 36, x.vf, C.v5);
-      var card = mini(g);
+    build: function (g, x, ov, D) {
+      chip(D.b('dev', g), 40, 36, x.dev, C.dev8);
+      var vf = chip(D.b('vf', g), 330, 36, x.vf, C.v5);
+      var card = mini(D.b('card', g));
       tr(card, 150, 110);
       // El hueco del estado vacío en la pantalla de Dev 8 (12, 84 · 116 × 15): falla, recibe su texto y se resalta
       var eBox = S('rect', {x: 12, y: 84, width: 116, height: 15, rx: 4, fill: 'none', stroke: C.err, 'stroke-width': 1.6, opacity: 0}, card);
       var eGlow = S('rect', {x: 8, y: 80, width: 124, height: 23, rx: 6, fill: C.warn, opacity: 0}, card);
-      var EMPTY = x.empty, eTx = T(card, PH ? 16 : 18, PH ? 95.5 : 95, '', {size: PH ? 11 : 9.5, w: 600, fill: C.text}), CW = PH ? 6.3 : 5.6;   // [portafolio] teléfono: 11
+      var EMPTY = x.empty, eTx = T(card, PHONE ? 16 : 18, VERT ? 96 : (PH ? 95.5 : 95), '', {size: VERT ? 12 : (PH ? 11 : 9.5), w: 600, fill: C.text}), CW = VERT ? 6.6 : (PH ? 6.3 : 5.6);   // [portafolio] teléfono: 11 (vertical: 12, en un panel a 0,9)
       eTx.setAttribute('data-p', 'empty');
       var dcur = cursor(card, C.dev8);
       var pulse = S('rect', {x: -3, y: -3, width: 146, height: 156, rx: 12, fill: 'none', stroke: C.dev8, 'stroke-width': 2, opacity: 0}, card);
       var scan = S('g', {}, card);
       S('rect', {x: 0, y: -3, width: 140, height: 6, fill: C.v5, opacity: .22}, scan);
       S('rect', {x: 0, y: -.75, width: 140, height: 1.5, fill: C.v5}, scan);
-      T(g, 346, 98, x.crit, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
-      T(g, 600, 98, x.evid, {size: 11, fill: C.muted, w: 600, ls: '.12em', anchor: 'end'});
+      // La tabla: ancho de fila (RW) y paso entre filas (RS) son de la disposición; la marca de cada fila va a 20 del borde derecho
+      var RW = D.v('rowW', 280), RS = D.v('rowStep', 38), tg = D.b('tbl', g), mk = 330 + RW - 20;
+      T(tg, 346, 98, x.crit, {size: 11, fill: C.muted, w: 600, ls: '.12em'});
+      T(tg, 330 + RW - 10, 98, x.evid, {size: 11, fill: C.muted, w: 600, ls: '.12em', anchor: 'end'});
       // Estelas detrás de las filas (no tachan los textos). Ida: la nota nace sobre la fila roja y viaja (con su estela ámbar) hasta quedar bajo la pantalla de Dev 8
-      var nw = x.fix.length * 7.4 + 22, n0 = [346, 189], n1 = [220 - nw / 2, 268], nc = [330, 292];
+      // (nS: escala de la nota al nacer y al llegar; en vertical se queda en 0,85 y su texto sigue ≥ 11 px)
+      var nw = x.fix.length * 7.4 + 22, nS = D.v('noteS', [.85, 1]), n0 = D.v('n0', D.m('tbl', 346, 132 + 2 * RS - 19)), n1 = D.v('n1', [220 - nw / 2, 268]), nc = D.v('nc', [330, 292]);
       function qb(a, c, b, p) { var q = 1 - p; return [q * q * a[0] + 2 * q * p * c[0] + p * p * b[0], q * q * a[1] + 2 * q * p * c[1] + p * p * b[1]]; }
-      var trailA = drawable(S('path', {d: 'M' + (n0[0] + nw / 2) + ' ' + (n0[1] + 13) + 'Q' + (nc[0] + nw / 2) + ' ' + (nc[1] + 13) + ' ' + (n1[0] + nw / 2) + ' ' + (n1[1] + 13), fill: 'none', stroke: C.warn, 'stroke-width': 1.6}, g));
+      var hx = nw * nS[1] / 2, hy = 13 * nS[1];
+      var trailA = drawable(S('path', {d: 'M' + (n0[0] + hx) + ' ' + (n0[1] + hy) + 'Q' + (nc[0] + hx) + ' ' + (nc[1] + hy) + ' ' + (n1[0] + hx) + ' ' + (n1[1] + hy), fill: 'none', stroke: C.warn, 'stroke-width': 1.6}, g));
       // Vuelta: «Round 2» sale del mismo lugar y vuelve hasta quedar junto al criterio que falló, antes de su marca
-      var rw = x.round.length * 7.6 + 38, r0 = [220 - rw / 2, 268], r1 = [572 - rw, 188], rc = [300, 250];
+      var rw = x.round.length * 7.6 + 38, r0 = D.v('r0', [220 - rw / 2, 268]), r1 = D.m('tbl', 330 + RW - 38 - rw, 132 + 2 * RS - 20), rc = D.v('rc', [300, 250]);
       var trailB = drawable(S('path', {d: 'M' + (r0[0] + rw / 2) + ' ' + (r0[1] + 14) + 'Q' + (rc[0] + rw / 2) + ' ' + (rc[1] + 14) + ' ' + (r1[0] + rw / 2) + ' ' + (r1[1] + 14), fill: 'none', stroke: C.cyan, 'stroke-width': 1.6}, g));
       var R = x.rows.map(function (s, i) {
-        var y = 132 + i * 38, r = S('g', {}, g);
-        var bgr = S('rect', {x: 330, y: y - 22, width: 280, height: 32, rx: 6, fill: C.sf, stroke: C.line}, r);
+        var y = 132 + i * RS, r = S('g', {}, tg);
+        var bgr = S('rect', {x: 330, y: y - 22, width: RW, height: 32, rx: 6, fill: C.sf, stroke: C.line}, r);
         T(r, 346, y - 1, s, {size: 14});
-        var pend = S('circle', {cx: 590, cy: y - 6, r: 7, fill: 'none', stroke: C.line, 'stroke-width': 1.5}, r);
-        var ok = tick(r, 590, y - 6, C.ok), bad = i === 2 ? cross(r, 590, y - 6) : null;
+        var pend = S('circle', {cx: mk, cy: y - 6, r: 7, fill: 'none', stroke: C.line, 'stroke-width': 1.5}, r);
+        var ok = tick(r, mk, y - 6, C.ok), bad = i === 2 ? cross(r, mk, y - 6) : null;
         return {bgr: bgr, pend: pend, ok: ok, bad: bad, at: 1.9 + i * .35};
       });
-      var hl = S('rect', {x: 328, y: 186, width: 284, height: 36, rx: 7, fill: 'none', stroke: C.v5, 'stroke-width': 2, opacity: 0}, g);
+      var hl = S('rect', {x: 328, y: 132 + 2 * RS - 22, width: RW + 4, height: 36, rx: 7, fill: 'none', stroke: C.v5, 'stroke-width': 2, opacity: 0}, tg);
       var tb = lessonTray(ov);
       var nt = note(ov, x.fix); nt.setAttribute('data-p', 'fix');   // en ov: viaja por encima de todo y queda sobre la bandeja
-      var pk = [Math.max(4, 144 - nw * TRAY_S), 194.7], tz = [tb.G.sx, tb.G.sy];
+      var pk = D.v('pk', [Math.max(4, 144 - nw * TRAY_S), 194.7]), tz = [tb.G.sx, tb.G.sy];
       // Ruta a la bandeja sin pasar por encima de nada: sube por la izquierda (antes de la pantalla), cruza bajo el chip de Dev 8,
       // sube por el hueco entre los dos chips y entra a la bandeja por arriba. Esquinas achaflanadas; velocidad pareja por largo de tramo.
       var RT = [pk, [pk[0], 92], [pk[0] + 14, 78], [186, 78], [200, 64], [200, 24], [186, tz[1]], tz];
       // [portafolio] teléfono: a escala 0,85 la nota no cabe a la izquierda de la pantalla; se aparta arriba de ella (libre entre el chip y la pantalla)
       // y de ahí sube derecho a la bandeja fija de la franja superior (la cámara ya volvió al borde izquierdo: ver CAM de E5)
       if (PH) { pk = [150, 77]; RT = [pk, [pk[0] - 20, 70], [tz[0] + 12, tz[1] + 12], tz]; }
+      if (D.on) RT = D.v('route', function () { return [pk, tz]; })(pk, tz);   // [portafolio] vertical: la ruta a la bandeja es de la disposición
       var RL = [0]; for (var ri = 1; ri < RT.length; ri++) RL.push(RL[ri - 1] + Math.hypot(RT[ri][0] - RT[ri - 1][0], RT[ri][1] - RT[ri - 1][1]));
       function along(p) { var d = p * RL[RL.length - 1], i = 1; while (i < RL.length - 1 && RL[i] < d) i++; var f = (d - RL[i - 1]) / ((RL[i] - RL[i - 1]) || 1); return [L(RT[i - 1][0], RT[i][0], f), L(RT[i - 1][1], RT[i][1], f)]; }
       var round = chip(g, r0[0], r0[1], x.round, C.cyan, {outline: true}); round.g.setAttribute('data-p', 'round');
       round.g.insertBefore(S('rect', {x: 0, y: 0, width: rw, height: 28, rx: 14, fill: C.bg1}), round.g.firstChild);
-      var badge = S('g', {}, g), bw = Math.max(96, x.verified.length * 9 + 22);
+      var badge = S('g', {}, g), bw = Math.max(96, x.verified.length * 9 + 22), BG = D.v('badge', [220, 283]);
       S('rect', {x: -bw / 2, y: -15, width: bw, height: 30, rx: 6, fill: '#062014', stroke: C.ok, 'stroke-width': 1.5}, badge);
       T(badge, 0, 7, x.verified, {size: 16, fam: FX, w: 400, fill: C.ok, anchor: 'middle', ls: '.05em'}).setAttribute('data-p', 'verified');
       return function (t) {
@@ -473,8 +517,8 @@
         op(eBox, t < 6.2 ? sg(t, fail, fail + .25) : (1 - sg(t, 6.2, 6.5)) + sg(t, 8.0, 8.2));
         // 2 · la nota sale de la fila roja y viaja hasta Dev 8
         var pop = sg(t, 3.5, 3.8), mv = sg(t, 4.1, 4.9, eio), np = qb(n0, nc, n1, mv);
-        if (t < 5.95) tr(nt, np[0], np[1], L(.85, 1, pop));
-        else if (t < 8.05) { var pp = sg(t, 5.95, 6.25, eio); tr(nt, L(n1[0], pk[0], pp), L(n1[1], pk[1], pp), L(1, TRAY_S, pp)); }
+        if (t < 5.95) tr(nt, np[0], np[1], L(nS[0], nS[1], pop));
+        else if (t < 8.05) { var pp = sg(t, 5.95, 6.25, eio); tr(nt, L(n1[0], pk[0], pp), L(n1[1], pk[1], pp), L(nS[1], TRAY_S, pp)); }
         else { var tq = along(sg(t, 8.05, 8.75, eio)); tr(nt, tq[0], tq[1], TRAY_S); }
         op(nt, pop);
         // la bandeja se abre vacía, recibe la nota y destella
@@ -493,35 +537,38 @@
         draw(trailB, rm); op(trailB, (t > 6.6 ? .8 : 0) * (1 - sg(t, 8.0, 8.4)));
         // 5 · re-medición: la fila pasa a verde y entra «VERIFIED» bajo la pantalla
         op(hl, sg(t, 7.4, 7.55) * (1 - sg(t, 7.85, 8.05)));
-        var b = sg(t, 8.3, 8.7); op(badge, b); badge.setAttribute('transform', 'translate(220 283) scale(' + L(1.2, 1, b).toFixed(3) + ')');
+        var b = sg(t, 8.3, 8.7); op(badge, b); badge.setAttribute('transform', 'translate(' + BG[0] + ' ' + BG[1] + ') scale(' + L(1.2, 1, b).toFixed(3) + ')');
       };
     }});
 
   // E6 · ¿Cómo vamos? — 3,8 s. 3 indicadores con su cifra, escalonados 0,2 s (0,2–1,4) · barras en ola (1,4–2,1) · visor (2,1–2,4).
   SC.push({id: 'numbers', dur: 3.8, caps: [.2],
-    build: function (g, x, ov) {
+    build: function (g, x, ov, D) {
       trayHeld(ov);
-      T(g, 40, 58, x.head, {size: 12, fill: C.muted, w: 600, ls: '.12em'});
-      var sw = x.sample.length * 7.6 + 38;
-      chip(g, Math.min(498, 620 - sw), 38, x.sample, C.muted, {outline: true});
+      var HD = D.v('head', [40, 58]);
+      T(g, HD[0], HD[1], x.head, {size: 12, fill: C.muted, w: 600, ls: '.12em'});
+      var sw = x.sample.length * 7.6 + 38, SP = D.v('sample', [Math.min(498, 620 - sw), 38]);
+      chip(g, SP[0], SP[1], x.sample, C.muted, {outline: true});
+      // Geometría de los 3 indicadores (de la disposición): en escritorio, tarjetas altas lado a lado; en vertical, franjas apiladas con las barras a la derecha
+      var KG = D.v('kpi', {w: 170, h: 200, lab: [16, 30], val: [16, 86], sub: [16, 110], base: 182, bx: 16, bh: 50, x: [40, 236, 432], y: [90, 90, 90]});
       var H = [[30, 45, 20, 55, 35, 10, 60, 40, 70, 50, 42, 100], [60, 20, 40, 70, 30, 50, 45, 25, 60, 35, 55, 48], [80, 65, 72, 58, 60, 66, 50, 55, 48, 52, 44, 40]];
       var K = [[12, 0, ''], [1.4, 1, ''], [1.6, 1, ' h']].map(function (k, i) {
-        var g2 = S('g', {}, g), gx = 40 + i * 196;
-        S('rect', {x: 0, y: 0, width: 170, height: 200, rx: 12, fill: C.sf, stroke: C.line}, g2);
-        T(g2, 16, 30, x.k[i], {size: 11, fill: C.muted, w: 600, ls: '.08em'});
-        var v = T(g2, 16, 86, '0', {size: 46, w: 600});
-        T(g2, 16, 110, x.sub[i], {size: 12, fill: C.muted});
-        S('path', {d: 'M16 182h138', stroke: C.line}, g2);
-        var bars = H[i].map(function (h, j) { return S('rect', {x: 16 + j * 11.6, y: 182, width: 8, height: 0, rx: 1.5, fill: C.cyan, opacity: j === 11 ? 1 : .42}, g2); });
-        return {g: g2, x: gx, v: v, to: k[0], dec: k[1], suf: k[2], bars: bars, h: H[i]};
+        var g2 = S('g', {}, g), gx = KG.x[i];
+        S('rect', {x: 0, y: 0, width: KG.w, height: KG.h, rx: 12, fill: C.sf, stroke: C.line}, g2);
+        T(g2, KG.lab[0], KG.lab[1], x.k[i], {size: 11, fill: C.muted, w: 600, ls: '.08em'});
+        var v = T(g2, KG.val[0], KG.val[1], '0', {size: 46, w: 600});
+        T(g2, KG.sub[0], KG.sub[1], x.sub[i], {size: 12, fill: C.muted});
+        S('path', {d: 'M' + KG.bx + ' ' + KG.base + 'h138', stroke: C.line}, g2);
+        var bars = H[i].map(function (h, j) { return S('rect', {x: KG.bx + j * 11.6, y: KG.base, width: 8, height: 0, rx: 1.5, fill: C.cyan, opacity: j === 11 ? 1 : .42}, g2); });
+        return {g: g2, x: gx, y: KG.y[i], v: v, to: k[0], dec: k[1], suf: k[2], bars: bars, h: H[i]};
       });
-      var br = S('g', {}, g), bx = 236 - 6, by = 84, bw = 182, bh = 212;
+      var VS = D.v('visor', [236 - 6, 84, 182, 212]), br = S('g', {}, g), bx = VS[0], by = VS[1], bw = VS[2], bh = VS[3];
       [[0, 0, 1, 1], [bw, 0, -1, 1], [0, bh, 1, -1], [bw, bh, -1, -1]].forEach(function (c) { S('path', {d: 'M' + (c[0] + 14 * c[2]) + ' ' + c[1] + 'H' + c[0] + 'V' + (c[1] + 14 * c[3]), fill: 'none', stroke: C.cyan, 'stroke-width': 2}, br); });
       return function (t) {
         K.forEach(function (k, i) {
-          var p = sg(t, .2 + i * .2, .55 + i * .2); op(k.g, p); tr(k.g, k.x, 90 + (1 - p) * 12);
+          var p = sg(t, .2 + i * .2, .55 + i * .2); op(k.g, p); tr(k.g, k.x, k.y + (1 - p) * 12);
           var c = sg(t, .3 + i * .2, 1.0 + i * .2); k.v.textContent = nf(k.to * c, k.dec) + k.suf;
-          k.bars.forEach(function (b, j) { var a = 1.4 + j * .025 + i * .07, hh = 50 * k.h[j] / 100 * sg(t, a, a + .28); b.setAttribute('height', hh.toFixed(1)); b.setAttribute('y', (182 - hh).toFixed(1)); });
+          k.bars.forEach(function (b, j) { var a = 1.4 + j * .025 + i * .07, hh = KG.bh * k.h[j] / 100 * sg(t, a, a + .28); b.setAttribute('height', hh.toFixed(1)); b.setAttribute('y', (KG.base - hh).toFixed(1)); });
         });
         var q = sg(t, 2.1, 2.4); op(br, q); br.setAttribute('transform', 'translate(' + (bx - 8 * (1 - q)) + ' ' + (by - 8 * (1 - q)) + ') scale(' + L(1.09, 1, q).toFixed(3) + ')');
       };
@@ -530,36 +577,38 @@
   // E7 · Revisión y salida — 4,2 s. Cortex + globo + onda (0,2–1,4) · visto (1,5–1,8) · marco Staging → Production de E4 (1,7–1,95) ·
   // la pantalla sellada viaja por el carril (1,95–2,7) · Production se enciende (2,65–3,0). Quieto desde 3,0.
   SC.push({id: 'ship', dur: 4.2, caps: [.2],
-    build: function (g, x, ov) {
+    build: function (g, x, ov, D) {
       trayHeld(ov);
-      var cx = S('g', {}, g);
+      var cx = S('g', {}, D.b('cx', g));
       S('circle', {cx: 80, cy: 118, r: 26, fill: C.cortex, opacity: .2}, cx);
       S('circle', {cx: 80, cy: 118, r: 26, fill: 'none', stroke: C.cortex, 'stroke-width': 1.6}, cx);
       T(cx, 80, 124, 'C', {size: 18, fam: FX, w: 400, anchor: 'middle', fill: C.cortex});
       T(cx, 80, 166, 'Cortex', {size: 13, anchor: 'middle', w: 600});
+      // El globo de la voz: su caja, su cola, la onda y la frase son de la disposición (en vertical, a todo el ancho bajo los dos, con la onda arriba de la frase)
+      var BB = D.v('bub', {r: [124, 88, 384, 60], tail: 'M124 110l-12 8 12 8', cover: [125, 108, 3, 20], wx: 142, wy: 118, say: [282, 124], anchor: 'start'});
       var bub = S('g', {}, g);
-      S('rect', {x: 124, y: 88, width: 384, height: 60, rx: 14, fill: C.sf, stroke: C.line}, bub);
-      S('path', {d: 'M124 110l-12 8 12 8', fill: C.sf, stroke: C.line}, bub);
-      S('rect', {x: 125, y: 108, width: 3, height: 20, fill: C.sf}, bub);
-      var wv = []; for (var k = 0; k < 15; k++) wv.push(S('rect', {x: 142 + k * 8.6, y: 116, width: 4.5, height: 4, rx: 2, fill: C.cortex}, bub));
-      var say = T(bub, 282, 124, x.say, {size: 15, w: 600});
-      var me = S('g', {}, g);
+      S('rect', {x: BB.r[0], y: BB.r[1], width: BB.r[2], height: BB.r[3], rx: 14, fill: C.sf, stroke: C.line}, bub);
+      S('path', {d: BB.tail, fill: C.sf, stroke: C.line}, bub);
+      S('rect', {x: BB.cover[0], y: BB.cover[1], width: BB.cover[2], height: BB.cover[3], fill: C.sf}, bub);
+      var wv = []; for (var k = 0; k < 15; k++) wv.push(S('rect', {x: BB.wx + k * 8.6, y: BB.wy - 2, width: 4.5, height: 4, rx: 2, fill: C.cortex}, bub));
+      var say = T(bub, BB.say[0], BB.say[1], x.say, {size: 15, w: 600, anchor: BB.anchor});
+      var me = S('g', {}, D.b('me', g));
       S('circle', {cx: 572, cy: 118, r: 26, fill: C.sf, stroke: C.text, 'stroke-width': 1.4}, me);
       T(me, 572, 125, 'AG', {size: 18, fam: FX, w: 400, anchor: 'middle'});
       T(me, 572, 166, x.me, {size: 13, anchor: 'middle', w: 600});
-      var ok = tick(g, 596, 96, C.ok);
+      var ok = tick(D.b('me', g), 596, 96, C.ok);
       // El mismo marco Staging → Production de E4 (mismo dibujo, a escala): Staging sellada, Production apagada hasta mi visto
-      var SS = .34, eg = S('g', {}, g);
-      var stg = envFrame(eg, 120, 186, 180, 110, x.st[0]); envState(stg, 'ok');
+      var SS = .34, eg = S('g', {}, g), EW = D.v('envW', 180), TK = D.v('track', ['M304 241H346', 42]);
+      var stg = envFrame(D.b('stgE', eg), 120, 186, EW, 110, x.st[0]); envState(stg, 'ok');
       var s1 = screenMock(stg.g, true); tr(s1.g, 134, 222, SS);
       var seal = S('g', {}, stg.g);
       S('circle', {cx: 0, cy: 0, r: 17, fill: C.ok, opacity: .1}, seal);
       S('circle', {cx: 0, cy: 0, r: 17, fill: 'none', stroke: C.ok, 'stroke-width': 1.6}, seal);
       S('path', {d: 'M-6 0l4 4 8-8.5', fill: 'none', stroke: C.ok, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'}, seal);
       tr(seal, 240, 256);
-      var track = S('path', {d: 'M304 241H346', stroke: C.line, 'stroke-width': 1.6, 'stroke-dasharray': '3 3'}, eg);
-      var prog = S('path', {d: 'M304 241H346', stroke: C.ok, 'stroke-width': 2, 'stroke-dasharray': '42 42', 'stroke-dashoffset': 42}, eg);
-      var prod = envFrame(eg, 350, 186, 180, 110, x.st[1]); envState(prod, 'off'); prod.box.setAttribute('data-p', 'prod');
+      var track = S('path', {d: TK[0], stroke: C.line, 'stroke-width': 1.6, 'stroke-dasharray': '3 3'}, eg);
+      var prog = S('path', {d: TK[0], stroke: C.ok, 'stroke-width': 2, 'stroke-dasharray': TK[1] + ' ' + TK[1], 'stroke-dashoffset': TK[1]}, eg);
+      var prod = envFrame(D.b('prodE', eg), 350, 186, EW, 110, x.st[1]); envState(prod, 'off'); prod.box.setAttribute('data-p', 'prod');
       var ghost = S('rect', {x: 364, y: 222, width: 120 * SS, height: 200 * SS, rx: 3, fill: 'none', stroke: C.line, 'stroke-dasharray': '3 3'}, prod.g);
       var s2 = screenMock(prod.g, true); tr(s2.g, 364, 222, SS);
       var live = S('g', {}, prod.g);
@@ -567,18 +616,18 @@
       S('circle', {cx: 0, cy: 0, r: 17, fill: 'none', stroke: C.ok, 'stroke-width': 1.6}, live);
       S('path', {d: 'M-6 0l4 4 8-8.5', fill: 'none', stroke: C.ok, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'}, live);
       tr(live, 470, 256);
-      var mov = screenMock(eg, true);
+      var mov = screenMock(eg, true), M0 = D.m('stgE', 134, 222), M1 = D.m('prodE', 364, 222);   // la copia viaja de Staging a Production
       return function (t) {
         op(cx, sg(t, .2, .45)); op(bub, sg(t, .25, .5)); op(me, sg(t, .3, .55));
         var env = sg(t, .3, .5) * (1 - sg(t, 1.2, 1.4));
-        wv.forEach(function (b, k) { var h = 4 + 22 * env * Math.abs(Math.sin(t * 9 + k * .75)) * (.55 + .45 * Math.abs(Math.sin(k * 1.7))); b.setAttribute('height', h.toFixed(1)); b.setAttribute('y', (118 - h / 2).toFixed(1)); });
+        wv.forEach(function (b, k) { var h = 4 + 22 * env * Math.abs(Math.sin(t * 9 + k * .75)) * (.55 + .45 * Math.abs(Math.sin(k * 1.7))); b.setAttribute('height', h.toFixed(1)); b.setAttribute('y', (BB.wy - h / 2).toFixed(1)); });
         op(say, sg(t, .45, .7));
         var oq = sg(t, 1.5, 1.8); op(ok, oq); tr(ok, 0, (1 - oq) * 4);
         op(eg, sg(t, 1.7, 1.95));
         // Tras mi visto, una copia de la pantalla sellada viaja por el carril y Production se enciende
-        var p = sg(t, 1.95, 2.7, eio), mx = L(134, 364, p), my = 222 - 22 * Math.sin(Math.PI * p);
+        var p = sg(t, 1.95, 2.7, eio), mx = L(M0[0], M1[0], p), my = L(M0[1], M1[1], p) - 22 * Math.sin(Math.PI * p);
         tr(mov.g, mx, my, SS); op(mov.g, t > 1.95 && t < 2.75 ? 1 : 0);
-        prog.setAttribute('stroke-dashoffset', (42 * (1 - sg(t, 2.1, 2.6, lin))).toFixed(1));
+        prog.setAttribute('stroke-dashoffset', (TK[1] * (1 - sg(t, 2.1, 2.6, lin))).toFixed(1));
         var on = sg(t, 2.65, 3.0);
         envState(prod, t >= 2.7 ? 'ok' : 'off');
         op(s2.g, t >= 2.7 ? 1 : 0); op(ghost, 1 - on);
@@ -591,36 +640,37 @@
   // ENTRA AL SKILL: la línea viaja a la ficha «Skill · Dev», se inserta, la ficha destella y sube de versión v4 → v5 (2,8–3,9) ·
   // «decision logged» (3,7–4,0) · lazo violeta + «next start loads it» (4,0–4,8). La bandeja queda vacía. Quieto desde 4,8.
   SC.push({id: 'lesson', dur: 5.8, caps: [.2],
-    build: function (g, x, ov) {
-      var ring = S('g', {}, g);
+    build: function (g, x, ov, D) {
+      var cb = D.b('cx', g), sk = D.b('sk', g), ring = S('g', {}, cb);
       S('circle', {cx: 0, cy: 0, r: 48, fill: C.cortex, opacity: .08}, ring);
       var dash = S('circle', {cx: 0, cy: 0, r: 48, fill: 'none', stroke: C.cortex, 'stroke-width': 2, 'stroke-dasharray': '7 6'}, ring);
       tr(ring, 320, 170);
-      T(g, 320, 168, 'Cortex', {size: 15, w: 600, anchor: 'middle'});
+      T(cb, 320, 168, 'Cortex', {size: 15, w: 600, anchor: 'middle'});
       // Bajo «Cortex», lo que está haciendo: memoria → revisando → aprendiendo → memoria
-      var sub = [x.mem, x.rev, x.learn].map(function (s, i) { var e = T(g, 320, 188, s, {size: 12, fill: i ? C.cortex : C.muted, anchor: 'middle', w: i ? 600 : 500}); e.setAttribute('data-p', 'sub' + i); return e; });
+      var sub = [x.mem, x.rev, x.learn].map(function (s, i) { var e = T(cb, 320, 188, s, {size: 12, fill: i ? C.cortex : C.muted, anchor: 'middle', w: i ? 600 : 500}); e.setAttribute('data-p', 'sub' + i); return e; });
       // La ficha del skill: brillo breve y marca de versión cuando la lección entra
-      var skBox = S('rect', {x: 466, y: 110, width: 146, height: 124, rx: 10, fill: C.sf, stroke: C.line}, g);
-      var skGlow = S('rect', {x: 462, y: 106, width: 154, height: 132, rx: 13, fill: 'none', stroke: C.cyan, 'stroke-width': 2.2, opacity: 0}, g);
-      T(g, 482, 136, x.skill, {size: 14, w: 600});
-      var ver = S('g', {'data-p': 'ver'}, g);
+      var skBox = S('rect', {x: 466, y: 110, width: 146, height: 124, rx: 10, fill: C.sf, stroke: C.line}, sk);
+      var skGlow = S('rect', {x: 462, y: 106, width: 154, height: 132, rx: 13, fill: 'none', stroke: C.cyan, 'stroke-width': 2.2, opacity: 0}, sk);
+      T(sk, 482, 136, x.skill, {size: 14, w: 600});
+      var ver = S('g', {'data-p': 'ver'}, sk);
       var verR = S('rect', {x: -14, y: -9, width: 28, height: 18, rx: 9, fill: C.sf2, stroke: C.line}, ver);
       var v4 = T(ver, 0, 4.2, 'v4', {size: 11, w: 600, fill: C.muted, anchor: 'middle'});
       var v5 = T(ver, 0, 4.2, 'v5', {size: 11, w: 600, fill: C.cyan, anchor: 'middle'});
-      [152, 168, 184].forEach(function (y, i) { S('rect', {x: 482, y: y, width: [104, 86, 96][i], height: 6, rx: 3, fill: C.sf2}, g); });
-      var nl = S('rect', {x: 482, y: 200, width: 0, height: 6, rx: 3, fill: C.cyan}, g);
-      var ntx = T(g, 482, 224, x.lesson, {size: 12, fill: C.cyan, w: 600});
-      var dec = chip(g, 258, 236, x.dec, C.cortex);
-      var loop = drawable(S('path', {d: 'M540 236 C 540 290, 420 300, 300 300 S 80 296, 80 210', fill: 'none', stroke: '#A78BFA', 'stroke-width': 1.6, 'stroke-dasharray': '1'}, g));
-      var lt = T(g, 330, 288, x.next, {size: 12, fill: C.muted});
+      [152, 168, 184].forEach(function (y, i) { S('rect', {x: 482, y: y, width: [104, 86, 96][i], height: 6, rx: 3, fill: C.sf2}, sk); });
+      var nl = S('rect', {x: 482, y: 200, width: 0, height: 6, rx: 3, fill: C.cyan}, sk);
+      var ntx = T(sk, 482, 224, x.lesson, {size: 12, fill: C.cyan, w: 600});
+      var dec = chip(D.b('dec', g), 258, 236, x.dec, C.cortex);
+      // El lazo «la carga al arrancar» y su texto son de la disposición (salen del pie de la ficha del skill en los dos formatos)
+      var loop = drawable(S('path', {d: D.v('loop', 'M540 236 C 540 290, 420 300, 300 300 S 80 296, 80 210'), fill: 'none', stroke: '#A78BFA', 'stroke-width': 1.6, 'stroke-dasharray': '1'}, g));
+      var LTp = D.v('lt', [330, 288]), lt = T(g, LTp[0], LTp[1], x.next, {size: 12, fill: C.muted});
       // Enlace Cortex → nota mientras la revisa
-      var link = S('path', {d: 'M320 121V109', stroke: C.cortex, 'stroke-width': 1.6, 'stroke-dasharray': '2 3'}, g);
+      var link = S('path', {d: 'M320 121V109', stroke: C.cortex, 'stroke-width': 1.6, 'stroke-dasharray': '2 3'}, cb);
       // La bandeja y la nota que sale de ella (en ov: misma posición que en E5–E7, sin fundido al entrar)
       var tb = lessonTray(ov), G = tb.G, nw = G.nw;
       var nt = note(ov, G.fx); nt.setAttribute('data-p', 'fix'); var ntT = nt.lastChild;
-      var EX = [320 - nw / 2, 80];   // frente a Cortex, sobre el anillo
+      var EX = D.m('cx', 320 - nw / 2, 80), LY = D.m('cx', 0, 93)[1];   // frente a Cortex, sobre el anillo (donde esté Cortex)
       // Barrido de la revisión: banda + lupa (Cortex)
-      var band = S('rect', {x: -5, y: 78, width: 10, height: 30, rx: 3, fill: C.cortex, opacity: 0}, ov);
+      var band = S('rect', {x: -5, y: D.m('cx', 0, 78)[1], width: 10, height: 30, rx: 3, fill: C.cortex, opacity: 0}, ov);
       var lens = S('g', {'data-p': 'lens'}, ov);
       S('circle', {cx: 0, cy: 0, r: 12, fill: 'rgba(91,141,239,.14)', stroke: C.cortex, 'stroke-width': 2.2}, lens);
       S('path', {d: 'M8.5 8.5L17 17', stroke: C.cortex, 'stroke-width': 3, 'stroke-linecap': 'round'}, lens);
@@ -629,7 +679,7 @@
       S('rect', {x: 0, y: 0, width: lw, height: 26, rx: 13, fill: '#062027', stroke: C.cyan, 'stroke-width': 1.4}, lp);
       T(lp, lw / 2, 17.5, x.lesson, {size: 13, w: 600, fill: C.cyan, anchor: 'middle'});
       var lpGlow = S('rect', {x: -4, y: -4, width: lw + 8, height: 34, rx: 17, fill: 'none', stroke: C.cyan, 'stroke-width': 1.6, opacity: 0}, lp);
-      var LX = [320 - lw / 2, 80], LZ = [482, 194], LC = [440, 70];
+      var LX = D.m('cx', 320 - lw / 2, 80), LZ = D.m('sk', 482, 194), LC = D.v('lc', [440, 70]);
       function qb(a, c, b, p) { var q = 1 - p; return [q * q * a[0] + 2 * q * p * c[0] + p * p * b[0], q * q * a[1] + 2 * q * p * c[1] + p * p * b[1]]; }
       return function (t) {
         dash.setAttribute('transform', 'rotate(' + (Math.min(t, 4.8) * 40 + 160 * sg(t, 1.0, 2.0, lin)).toFixed(1) + ')');
@@ -644,7 +694,7 @@
         // 2 · se revisa: enlace con Cortex y lupa que barre la nota
         var sw = sg(t, 1.1, 1.9, eio), lx = EX[0] + 6 + (nw - 12) * sw, inR = t > 1.0 && t < 2.05;
         op(link, sg(t, 1.0, 1.15) * (1 - sg(t, 2.6, 2.8)));
-        tr(lens, lx, 93); op(lens, inR ? sg(t, 1.0, 1.12) * (1 - sg(t, 1.9, 2.05)) : 0);
+        tr(lens, lx, LY); op(lens, inR ? sg(t, 1.0, 1.12) * (1 - sg(t, 1.9, 2.05)) : 0);
         tr(band, lx, 0); op(band, inR ? .22 * sg(t, 1.0, 1.12) * (1 - sg(t, 1.9, 2.05)) : 0);
         var s1 = t >= 1.0 && t < 2.0 ? 1 : 0, s2 = t >= 2.0 && t < 2.9 ? 1 : 0;
         op(sub[1], s1 * sg(t, 1.0, 1.15)); op(sub[2], s2 * sg(t, 2.0, 2.15)); op(sub[0], 1 - s1 - s2);
@@ -652,7 +702,7 @@
         var a = sg(t, 2.35, 2.6), m = sg(t, 2.85, 3.4, eio), mp = qb(LX, LC, LZ, m);
         // [portafolio] teléfono: se achica menos (texto ≥ 11 px). El op(lp, …) va en su propia sentencia: al integrar quedó dentro de este
         // comentario y la píldora «+ lección» se veía desde el inicio de E8, encima de la ficha (regresión vista por el dueño el 14-11).
-        tr(lp, mp[0], mp[1], L(1, PH ? .85 : .7, m)); op(lp, a * (1 - sg(t, 3.3, 3.45)));
+        tr(lp, mp[0], mp[1], L(1, PHONE ? .85 : .7, m)); op(lp, a * (1 - sg(t, 3.3, 3.45)));
         op(lpGlow, sg(t, 2.45, 2.6) * (1 - sg(t, 2.7, 2.95)));
         // 4 · entra al skill: la línea se inserta, la ficha destella y sube de versión
         nl.setAttribute('width', (100 * sg(t, 3.25, 3.6)).toFixed(1)); op(ntx, sg(t, 3.4, 3.6));
@@ -667,10 +717,89 @@
       };
     }});
 
+  /* ───────── Disposición vertical (teléfono, VW × VH = 360 × 480) ─────────
+   * Márgenes 16 · franja de la bandeja 4–50 (E5–E8) · el rótulo HTML ocupa el pie (≈ y 446–470): el contenido termina antes de y 440.
+   * Solo DÓNDE va cada cosa; qué aparece y cuándo sigue en cada escena, arriba. */
+  function nwOf(x) { return x.fix.length * 7.4 + 22; }   // ancho de la nota «1 arreglo» a escala 1 (misma regla que note())
+  function chipW(s) { return s.length * 7.6 + 38; }       // ancho de un chip (misma regla que chip())
+
+  // E1 · Encargo: chip del PO arriba, la ficha del encargo grande al centro (× 1,15), «encargo completo» bajo la ficha, alineado a su derecha.
+  DISP.v[0] = {b: {po: [40, 36, 31, 62], card: [180, 78, 31, 114, 1.15], ready: function (x) { return [452, 78, 328 - chipW(x.ready), 359]; }}};
+
+  // E2 · Orden y plan: chip de Cortex; la fila de 4 tarjetas (× 1,05) a todo el alto medio; debajo el chip del TL y su plan,
+  // que nace del chip y pasa por los 3 nodos en una fila (en escritorio nace de la tarjeta y va a la derecha).
+  DISP.v[1] = {
+    b: {cx: [40, 36, 16, 24], q: [40, 86, 16, 72, 1.05], tl: [330, 96, 16, 306]},
+    v: {nStart: [100, 104], path: 'M40 334 C 40 352, 50 370, 64 370 S 145 402, 180 402 S 261 370, 296 370', nodes: [[64, 370], [180, 402], [296, 370]]}
+  };
+
+  // E3 · Equipo y espacio: las 4 fichas en 2 × 2 arriba (× 1,2, alineadas con los PC); PC 1 y PC 2 lado a lado (× 0,94) y PC 3 centrado debajo.
+  // La sesión viaja de la ficha de Dev 8 al PC 3 con su arco hacia la derecha (por el hueco entre PC 1 y PC 2).
+  DISP.v[2] = {
+    b: {f0: [40, 44, 10, 14, 1.2], f1: [188, 44, 184.6, 14, 1.2], f2: [336, 44, 10, 84, 1.2], f3: [484, 44, 184.6, 84, 1.2],
+      m0: [40, 150, 10, 162, .94], m1: [240, 150, 184.6, 162, .94], m2: [440, 150, 97.3, 298, .94]},
+    v: {arc: [55, 0]}
+  };
+
+  // E4 · Construcción y sello: el flujo va de arriba abajo. Arriba la lámina del sistema de diseño como franja (rótulo, tokens y los
+  // 4 componentes en fila); al medio Staging a todo el ancho (pantalla a la izquierda, controles y sello a la derecha); abajo el carril
+  // apagado (flecha hacia abajo) y Producción apagada como franja.
+  DISP.v[3] = {
+    b: {tok: [34, 98, 190, 20], b1: [34, 140, 28, 62], b2: [34, 166, 28, 86], base: [34, 194, 146, 50], b4: [34, 264, 258, 70],
+      stg: [166, 60, 16, 118], ck: [312, 106, 202, 164]},
+    v: {dsmBox: [16, 10, VW - 32, 100], dsmLab: [28, 32], stgW: VW - 32, arc: [-30, 0],
+      lane: ['M180 358V368', 'M175.5 364.5l4.5 4.5 4.5-4.5'], prodBox: [16, 372, VW - 32, 60], prodPh: [200, 380, 132, 44]}
+  };
+
+  // E5 · Revisión y vuelta (boceto C aprobado): bandeja arriba; pantalla de Dev 8 a la izquierda con su chip y «VERIFICADA» a la derecha;
+  // chip de verif-5 y la tabla de criterios a todo el ancho debajo. La nota nace sobre la fila que falló, a la derecha de su texto.
+  DISP.v[4] = {
+    b: {dev: [40, 36, 152, 58], card: [150, 110, 16, 58, .9], vf: [330, 36, 16, 232], tbl: [330, 98, 16, 280]},
+    v: {
+      rowW: VW - 32, rowStep: 36, noteS: [.75, .85],
+      n0: function (x) { return [VW - 20 - nwOf(x) * .85, 369]; },
+      n1: [150, 129], nc: [154, 250], pk: [150, 162],
+      r0: function (x) { return [16 + (126 - chipW(x.round)) / 2, 199]; }, rc: [250, 236],
+      badge: [248, 107],
+      route: function () { return function (pk, tz) { return [pk, [pk[0], tz[1]], tz]; }; }
+    }
+  };
+
+  // E6 · ¿Cómo vamos?: bandeja arriba; título y «solo ejemplo» en una fila; los 3 indicadores como franjas apiladas (cifra a la izquierda,
+  // barras a la derecha); el visor enmarca la franja del medio (vueltas por tarea), igual que en escritorio enmarca la tarjeta del medio.
+  DISP.v[5] = {v: {
+    head: [16, 76], sample: function (x) { return [VW - 16 - chipW(x.sample), 58]; },
+    kpi: {w: VW - 32, h: 104, lab: [16, 24], val: [16, 70], sub: [16, 92], base: 88, bx: 176, bh: 50, x: [16, 16, 16], y: [96, 208, 320]},
+    visor: [10, 202, VW - 20, 116]
+  }};
+
+  // E7 · Revisión y salida: bandeja arriba; Cortex a la izquierda y yo a la derecha, frente a frente; el globo de la voz debajo, a todo
+  // el ancho, con su cola hacia Cortex; abajo Staging → Production lado a lado (marcos de 150) con el carril entre los dos.
+  DISP.v[6] = {
+    b: {cx: [80, 118, 52, 108], me: [572, 118, 308, 108], stgE: [120, 186, 16, 282], prodE: [350, 186, 194, 282]},
+    v: {
+      bub: {r: [16, 174, VW - 32, 84], tail: 'M40 175l12-12 12 12', cover: [41, 173.4, 22, 3], wx: 180 - 64.5, wy: 202, say: [180, 242], anchor: 'middle'},
+      envW: 150, track: ['M168 337H192', 24]
+    }
+  };
+
+  // E8 · Lección: bandeja arriba; la nota sale y se pone sobre Cortex (centrado); debajo, «decisión anotada» a la izquierda y la ficha
+  // del skill a la derecha; el lazo «la carga al arrancar» sale del pie de la ficha y vuelve por la izquierda.
+  DISP.v[7] = {
+    b: {cx: [320, 170, 180, 168], sk: [466, 110, 198, 236], dec: [258, 236, 16, 248]},
+    v: {loop: 'M272 360 C 272 400, 210 410, 150 410 S 36 400, 36 300', lt: [92, 400], lc: [300, 200]}
+  };
+
   /* ───────── Reproductor ───────── */
   function bg(svg) {
     var id = 'dots' + (++uid), d = S('defs', {}, svg), p = S('pattern', {id: id, width: 20, height: 20, patternUnits: 'userSpaceOnUse'}, d);
     S('circle', {cx: 1, cy: 1, r: .9, fill: '#1A222D'}, p);
+    if (VERT) {   // [portafolio] cuadro vertical: mismo fondo y mismas esquinas, en VW × VH
+      S('rect', {x: 0, y: 0, width: VW, height: VH, fill: C.bg}, svg);
+      S('rect', {x: 0, y: 0, width: VW, height: VH, fill: 'url(#' + id + ')'}, svg);
+      [[8, 8, 1, 1], [VW - 8, 8, -1, 1], [8, VH - 8, 1, -1], [VW - 8, VH - 8, -1, -1]].forEach(function (c) { S('path', {d: 'M' + (c[0] + 12 * c[2]) + ' ' + c[1] + 'H' + c[0] + 'V' + (c[1] + 12 * c[3]), fill: 'none', stroke: C.cyan, 'stroke-width': 1.2, opacity: .45}, svg); });
+      return;
+    }
     S('rect', {x: 0, y: -HB, width: 640, height: 360 + HB, fill: C.bg}, svg);   // [portafolio] cubre también la franja del teléfono (fuera de vista en escritorio)
     S('rect', {x: 0, y: -HB, width: 640, height: 360 + HB, fill: 'url(#' + id + ')'}, svg);
     [[14, 14, 1, 1], [626, 14, -1, 1], [14, 346, 1, -1], [626, 346, -1, -1]].forEach(function (c) { S('path', {d: 'M' + (c[0] + 12 * c[2]) + ' ' + c[1] + 'H' + c[0] + 'V' + (c[1] + 12 * c[3]), fill: 'none', stroke: C.cyan, 'stroke-width': 1.2, opacity: .45}, svg); });
@@ -701,7 +830,7 @@
     o = o || {};
     var svg = S('svg', {viewBox: '0 0 640 360', 'aria-hidden': 'true', preserveAspectRatio: 'xMidYMid meet'});
     stage.insertBefore(svg, stage.firstChild);
-    bg(svg);
+    var bgL = S('g', {}, svg);   // [portafolio] fondo en su capa: se rehace al cruzar entre ancho y vertical
     var layer = S('g', {}, svg);
     var cap = stage.querySelector('.cap__in'), tag = stage.querySelector('.sc-tag');
     if (cap) cap.style.opacity = 0;
@@ -711,8 +840,10 @@
     Ls.forEach(function (l) { l.sc.caps.forEach(function (ct, j) { EV.push({t: l.st + ct, n: l.n, j: j}); }); });
     function build() {
       while (layer.firstChild) layer.removeChild(layer.firstChild);
+      while (bgL.firstChild) bgL.removeChild(bgL.firstChild);
+      bg(bgL);
       // ov: capa de la escena que NO hace el fundido de entrada (la bandeja «Lección por aprender» se ve quieta al cambiar de escena)
-      Ls.forEach(function (l) { l.g = S('g', {}, layer); l.ov = S('g', {}, layer); l.up = l.sc.build(l.g, X().sc[l.n], l.ov); });
+      Ls.forEach(function (l) { l.g = S('g', {'data-scn': l.n}, layer); l.ov = S('g', {'data-scn': l.n}, layer); l.up = l.sc.build(l.g, X().sc[l.n], l.ov, disp(l.n)); });
       lastCap = null;
     }
     build();
@@ -730,7 +861,7 @@
         var W = Math.min(640, Math.max(200, (stage.clientWidth || 360) / PS));
         camX = cl(camAt(L0.n, lt) - W / 2, 0, 640 - W);
         svg.setAttribute('viewBox', camX.toFixed(2) + ' ' + (-HB) + ' ' + W.toFixed(2) + ' ' + (360 + HB));
-      } else svg.setAttribute('viewBox', '0 0 640 360');
+      } else svg.setAttribute('viewBox', VERT ? '0 0 ' + VW + ' ' + VH : '0 0 640 360');
       var hud = L0.ov.querySelectorAll('[data-hud]');
       for (var h = 0; h < hud.length; h++) hud[h].setAttribute('transform', 'translate(' + camX.toFixed(2) + ' 0)');
       // Rótulo vigente: el último que ya entró (aunque sea de la escena anterior: sin hueco entre escenas)
@@ -992,7 +1123,7 @@
   var players = [], langHooks = [];
   // [portafolio] al cruzar los 699 px (girar el teléfono, cambiar la ventana) se rehace el cuadro en el otro modo, en el mismo segundo
   if (MQ) {
-    var onMQ = function () { var ph = !!MQ.matches; if (ph === PH) return; PH = ph; trayK(); players.forEach(function (p) { p.relang(); }); };
+    var onMQ = function () { var ph = !!MQ.matches; if (ph === PHONE) return; PHONE = ph; PH = CAMARA && ph; VERT = !CAMARA && ph; trayK(); players.forEach(function (p) { p.relang(); }); };
     if (MQ.addEventListener) MQ.addEventListener('change', onMQ); else if (MQ.addListener) MQ.addListener(onMQ);
   }
   if (EMB) window.addEventListener('resize', function () { players.forEach(function (p) { if (p.shown && !p.playing) p.seek(p.t); }); });
