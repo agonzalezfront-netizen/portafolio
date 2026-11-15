@@ -35,7 +35,7 @@
     ['hero.hello', 'Hello, I’m', 'Hola, soy'],
     ['hero.role', 'Product designer & founder', 'Diseñador de producto y fundador'],
     ['hero.sub', 'I direct a team of AI agents from the first spec to a verified release. 9+ years in product design and design systems for fintech and ecommerce.',
-      'Dirijo un equipo de agentes de IA de la spec (encargo) a la entrega verificada. 9+ años en diseño de producto y design systems en fintech y e-commerce.'],
+      'Dirijo un equipo de agentes de IA, de la spec (encargo) a la entrega verificada. 9+ años en diseño de producto y design systems en fintech y e-commerce.'],
     ['hero.loc', 'Chile, UTC-3 · Spanish native', 'Chile, UTC-3 · español nativo'],
     ['hero.cta', 'See the work', 'Ver proyectos'],
     ['hero.stats', 'In numbers', 'En cifras'],
