@@ -26,7 +26,7 @@
 <link rel="alternate" hreflang="es" href="https://agonzalez.viciusstudio.cl/?lang=es">
 <link rel="alternate" hreflang="x-default" href="https://agonzalez.viciusstudio.cl/">
 <!-- Idioma (EN / ES): decide antes de pintar; el diccionario va en el mismo archivo (sin fetch: sirve por file://) -->
-<script src="i18n.js?v=db9b2cf1"></script>
+<script src="i18n.js?v=1e8e22ae"></script>
 <script>
 /* Decide antes de pintar si corre el enjambre: solo con JS y sin reduced-motion; corre en cada carga.
    Sin ancla, la etapa de inicio (pantalla negra) empieza ya desde el primer cuadro.
@@ -251,7 +251,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
   <!-- Caso principal -->
   <article class="card card--main" aria-labelledby="c1">
     <ol class="rail" aria-label="Card states">
-      <li>Spec</li><li>Build</li><li>Verified</li>
+      <li data-i18n="rail.spec">Spec</li><li data-i18n="rail.build">Build</li><li data-i18n="rail.verified">Verified</li>
     </ol>
     <div class="card__body">
       <div class="card__text" data-build-items data-by="PO">
@@ -292,7 +292,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
   </article>
 
   <article class="card" aria-labelledby="c2">
-    <ol class="rail" aria-label="Card states"><li>Spec</li><li>Build</li><li>Verified</li></ol>
+    <ol class="rail" aria-label="Card states"><li data-i18n="rail.spec">Spec</li><li data-i18n="rail.build">Build</li><li data-i18n="rail.verified">Verified</li></ol>
     <div class="card__body">
       <div class="card__text" data-build-items data-by="PO">
         <h3 id="c2">Kocino, ordering and operations for restaurants</h3>
@@ -320,7 +320,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
   </article>
 
   <article class="card" aria-labelledby="c3">
-    <ol class="rail" aria-label="Card states"><li>Spec</li><li>Build</li><li>Shipped</li></ol>
+    <ol class="rail" aria-label="Card states"><li data-i18n="rail.spec">Spec</li><li data-i18n="rail.build">Build</li><li data-i18n="rail.shipped">Shipped</li></ol>
     <div class="card__body">
       <div class="card__text" data-build-items data-by="PO">
         <h3 id="c3">Pulsed, a platform for training organizations</h3>
@@ -361,7 +361,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
   </article>
 
   <article class="card" aria-labelledby="c4">
-    <ol class="rail" aria-label="Card states"><li>Spec</li><li>Build</li><li data-i18n="rail.inuse">In use</li></ol>
+    <ol class="rail" aria-label="Card states"><li data-i18n="rail.spec">Spec</li><li data-i18n="rail.build">Build</li><li data-i18n="rail.inuse">In use</li></ol>
     <div class="card__body">
       <div class="card__text" data-build-items data-by="PO">
         <h3 id="c4">Sales Command Center, inbox triage with AI</h3>
@@ -458,28 +458,28 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
     <li class="step">
       <span class="step__n">1<b aria-hidden="true">1</b></span>
       <span class="step__seg" aria-hidden="true"><i></i></span>
-      <span class="step__lb" aria-hidden="true">Spec</span>
-      <h3>Spec</h3>
+      <span class="step__lb" data-i18n="how.lb1" aria-hidden="true">Spec</span>
+      <h3 data-i18n="how.h1">Spec</h3>
       <p>Each task is a card with its acceptance criteria. The technical plan comes before the build.</p>
     </li>
     <li class="step">
       <span class="step__n">2<b aria-hidden="true">2</b></span>
       <span class="step__seg" aria-hidden="true"><i></i></span>
-      <span class="step__lb" aria-hidden="true">Build</span>
-      <h3>Build</h3>
+      <span class="step__lb" data-i18n="how.lb2" aria-hidden="true">Build</span>
+      <h3 data-i18n="how.h2">Build</h3>
       <p>A developer agent builds in its own workspace, with the design system and automatic checks.</p>
     </li>
     <li class="step">
       <span class="step__n">3<b aria-hidden="true">3</b></span>
       <span class="step__seg" aria-hidden="true"><i></i></span>
-      <span class="step__lb" aria-hidden="true">Verify</span>
-      <h3>Independent verification</h3>
+      <span class="step__lb" data-i18n="how.lb3" aria-hidden="true">Verify</span>
+      <h3 data-i18n="how.h3">Independent verification</h3>
       <p>A second agent checks every requirement with evidence. Failures go back and, if repeated, escalate.</p>
     </li>
     <li class="step">
       <span class="step__n">4<b aria-hidden="true">4</b></span>
-      <span class="step__lb" aria-hidden="true">Ship</span>
-      <h3>Review and ship</h3>
+      <span class="step__lb" data-i18n="how.lb4" aria-hidden="true">Ship</span>
+      <h3 data-i18n="how.h4">Review and ship</h3>
       <p>I review at the end of each stage. Then it goes to staging, and from there to production.</p>
     </li>
   </ol>
@@ -506,7 +506,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
             <p class="pc__sub">Follow it from spec to production.</p>
           </div>
           <ol class="pc__strip" data-build-items data-by="Dev 3,Dev 8" data-order="3">
-            <li><span>Spec</span></li><li><span>Order + plan</span></li><li><span>Team + room</span></li><li><span>Build + seal</span></li>
+            <li><span data-i18n="pc.spec">Spec</span></li><li><span>Order + plan</span></li><li><span>Team + room</span></li><li><span>Build + seal</span></li>
             <li class="is-fail"><span>Check + return</span><em>fails once</em></li><li><span>How are we doing?</span></li><li><span>Review + ship</span></li><li><span>Lesson</span></li>
           </ol>
         </div>

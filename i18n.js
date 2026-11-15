@@ -117,6 +117,7 @@
     /* ---- proyectos ---- */
     ['cases.title', 'Selected work', 'Proyectos destacados'],
     ['cases.note', 'Spec, build, then verified by a separate agent or shipped.', 'Spec, construcción y después verificación por otro agente, o publicación.'],
+    ['pc.spec', 'Spec', 'Encargo'],
     ['rail.aria', 'Card states', 'Estados de la tarjeta'],
     ['rail.spec', 'Spec', 'Encargada'],
     ['rail.build', 'Build', 'Construida'],
@@ -248,10 +249,12 @@
     /* ---- cómo trabajo ---- */
     ['how.title', 'How I work', 'Cómo trabajo'],
     ['how.note', 'The same path for every task, whether a person or an agent builds it.', 'El mismo camino para cada tarea, la construya una persona o un agente.'],
-    ['how.lb1', 'Spec', 'Spec'],
+    ['how.lb1', 'Spec', 'Encargo'],
     ['how.lb2', 'Build', 'Construcción'],
     ['how.lb3', 'Verify', 'Verificación'],
     ['how.lb4', 'Ship', 'Entrega'],
+    ['how.h1', 'Spec', 'Encargo con criterios'],
+    ['how.h2', 'Build', 'Construcción aislada'],
     ['how.h3', 'Independent verification', 'Verificación independiente'],
     ['how.h4', 'Review and ship', 'Revisión y entrega'],
     ['how.p1', 'Each task is a card with its acceptance criteria. The technical plan comes before the build.',
