@@ -294,7 +294,7 @@
     /* ---- trayectoria ---- */
     ['bg.title', 'Background', 'Trayectoria'],
     ['bg.now', '2025 to now', '2025 a la fecha'],
-    ['bg.sence', 'UX/UI and AI bootcamp instructor and mentor', 'Instructor y mentor de bootcamps de UX/UI e IA'],
+    ['bg.sence', 'Instructor and mentor for UX/UI and AI-for-design bootcamps', 'Instructor y mentor de bootcamps de UX/UI e IA aplicada al diseño'],
     ['bg.fal.when', '2023 to 2025', '2023 a 2025'],
     ['bg.fal', 'Product designer. Led a design system to unify internal tools and platforms, with reusable components, working with product managers and engineers.',
       'Diseñador de producto. Lideré un sistema de diseño para unificar herramientas y plataformas internas, con componentes reutilizables, junto a product managers e ingenieros.'],
