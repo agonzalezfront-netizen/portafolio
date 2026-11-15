@@ -447,6 +447,9 @@ time,.num{font-variant-numeric:tabular-nums}
 .fab__txt{display:flex;flex-direction:column;align-items:center;gap:2px}
 .fab__lbl{font:600 18px/1.2 var(--f-display);color:var(--text)}
 .fab__meta{font:500 14px/1.3 var(--f-display);color:var(--muted);white-space:nowrap}
+/* el póster entero inicia la pieza (index.html delega en #fab-go): cursor de mano y el disco responde al pasar por cualquier parte */
+.fab:not(.is-on):not(.is-loading) .poster{cursor:pointer}
+@media (hover:hover){.fab .poster:hover~.fab__go .fab__disc{background:color-mix(in srgb,var(--cyan) 80%,var(--text))}}
 .fab.is-loading .fab__go{cursor:progress}
 .fab.is-loading .fab__disc{opacity:.75}
 /* Teléfono: composición propia. Titular arriba, play como fila, tira al pie con solo inicio, fallo y fin rotulados */
@@ -455,9 +458,10 @@ time,.num{font-variant-numeric:tabular-nums}
   .pc__trace{display:none}
   .pc__title{left:var(--gutter);right:var(--gutter);top:var(--s-5)}
   .pc__sub{margin-top:var(--s-3);font-size:15px}
-  .fab__go{left:calc(var(--gutter) - var(--s-2));top:auto;bottom:86px;transform:none;flex-direction:row;gap:var(--s-4);padding:var(--s-2);padding-right:var(--s-4)}
+  /* play a la DERECHA (zona del pulgar) y su texto a la izquierda, alineado a la derecha (pedido de Alberto 15-11 01:11) */
+  .fab__go{left:auto;right:calc(var(--gutter) - var(--s-2));top:auto;bottom:86px;transform:none;flex-direction:row-reverse;gap:var(--s-4);padding:var(--s-2);padding-left:var(--s-4)}
   .fab__disc{box-shadow:var(--shadow-float)}
-  .fab__txt{align-items:flex-start}
+  .fab__txt{align-items:flex-end;text-align:right}
   .pc__strip{left:var(--gutter);right:var(--gutter);bottom:var(--s-5)}
   .pc__strip li{font-size:12px;display:flex;white-space:nowrap;min-height:24px}
   .pc__strip li span{display:none}
@@ -670,6 +674,8 @@ time,.num{font-variant-numeric:tabular-nums}
 .top.mo-hr::before,.top.mo-hr::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;transition:opacity .22s var(--ease)}
 .top.mo-hr::before{background:var(--black)}
 .top.mo-hr::after{bottom:-1px;background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line);opacity:0}
+/* Teléfono: fondo flotante OPACO. Al 88 % el texto de la página se leía a través de las pestañas (Alberto, Brave Android 15-11 01:11) */
+@media (max-width:767px){.top.mo-hr::after{background:var(--bg)}}
 .top.mo-hr.is-float::before{opacity:0}
 .top.mo-hr.is-float::after{opacity:1}
 .top.mo-hr.is-hidden{transform:translateY(calc(-100% - 2px))}

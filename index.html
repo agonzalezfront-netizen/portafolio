@@ -48,7 +48,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&family=Herr+Von+Muellerhoff&family=Space+Grotesk:wght@500;600;700&display=swap">
 <link rel="preload" as="image" href="img/alberto.webp" media="(min-width:768px)" fetchpriority="high">
 <link rel="preload" as="image" href="img/alberto-700.webp" media="(max-width:767px)" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=d6611ce8">
+<link rel="stylesheet" href="styles.css?v=faf5bfc2">
 <script src="motion.js?v=fdd49e81" defer></script>
 <script src="swarm.js?v=e37504c4" defer></script>
 </head>
@@ -615,6 +615,13 @@ go.addEventListener('click',function(){
   state=1;fig.classList.add('is-loading');go.setAttribute('aria-busy','true');build();
   load(function(){if(!window.__sb){fail();return;}state=2;fig.classList.remove('is-loading');fig.classList.add('is-on');go.removeAttribute('aria-busy');go.hidden=true;
     window.__sb.start();var b=document.getElementById('seq-play');if(b)b.focus({preventScroll:true});});
+});
+/* El póster entero es zona de toque (pedido de Alberto 15-11 01:11: el play quedaba lejos del pulgar). Delega en el botón real:
+   sigue habiendo UN solo control accesible (#fab-go; el póster es aria-hidden). Un arrastre de scroll no emite «click», así que no
+   reproduce. Solo antes de arrancar: después el póster se va (is-run) y los controles de la pieza no pasan por aquí. */
+stage.addEventListener('click',function(e){
+  if(state!==0||go.hidden||go.contains(e.target)||!e.target.closest||!e.target.closest('.poster'))return;
+  go.click();
 });})();
 </script>
 <script>/* Idioma: traduce el documento ya armado y recién entonces lo muestra (ver i18n.js) */window.__i18n&&window.__i18n.ready();</script>
