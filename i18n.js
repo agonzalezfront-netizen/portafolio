@@ -40,7 +40,7 @@
     ['hero.cta', 'See the work', 'Ver proyectos'],
     ['hero.stats', 'In numbers', 'En cifras'],
     ['hero.stat1', 'Years in product design', 'Años en diseño de producto'],
-    ['hero.stat2', 'Products designed and built', 'Productos diseñados y construidos'],
+    ['hero.stat2', 'Products designed', 'Productos diseñados'],
     ['hero.stat3', 'Agent roles, one board', 'Roles de agente, un solo tablero'],
     ['hero.note', 'Agentic-first, with Claude Code and MCP every day.', 'Primero los agentes: uso Claude Code y MCP todos los días.'],
 
