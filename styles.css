@@ -741,6 +741,8 @@ time,.num{font-variant-numeric:tabular-nums}
   .card__body{grid-template-columns:5fr 7fr;gap:var(--s-7);padding:var(--s-6)}
   .card--main .card__body{grid-template-columns:6fr 6fr}
   .shots--pair{max-width:none}
+  /* Pulsed: las 4 miniaturas en una fila, para que la columna de imagen tenga un alto parecido al del texto (pedido del dueño, 14-11 22:41) */
+  .shots--platform .thumbs{grid-template-columns:repeat(4,minmax(0,1fr))}
   .steps{grid-template-columns:repeat(4,minmax(0,1fr))}
   .step{padding-left:0}
   .step__n{position:relative;top:0}
