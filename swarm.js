@@ -976,12 +976,10 @@ var RITMO_BAJANDO = {
       if (!orb || stopped) return;
       var dt = Math.min(50, Math.max(0, now - orb.last)); // pestaña oculta: no salta al volver
       orb.last = now;
-      // sin acción del visitante la bandada frena y queda quieta (WCAG 2.2.2): velocidad 1 → 0 en INICIO.frenoOrbita
-      orb.el = (orb.el || 0) + dt;
-      var k = Math.max(0, Math.min(1, (INICIO.quieto + INICIO.frenoOrbita - orb.el) / INICIO.frenoOrbita));
-      orb.t += dt * k * k;
+      // la bandada sigue en órbita a velocidad constante mientras la etapa esté visible (orbitStop o cancelAll la cortan)
+      orb.t += dt;
       safe(orbitPaint);
-      if (orb && k > 0) orbNext();
+      if (orb) orbNext();
     }
     // Órbita: elipse centrada un poco a la izquierda (la etiqueta va a la derecha de la flecha); en móvil, alta y angosta
     function orbitGeo() {
