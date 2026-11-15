@@ -48,7 +48,7 @@ if(!a)return;d.classList.add('smooth-nav');clearTimeout(t);t=setTimeout(function
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&family=Herr+Von+Muellerhoff&family=Space+Grotesk:wght@500;600;700&display=swap">
 <link rel="preload" as="image" href="img/alberto.webp" media="(min-width:768px)" fetchpriority="high">
 <link rel="preload" as="image" href="img/alberto-700.webp" media="(max-width:767px)" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=faf5bfc2">
+<link rel="stylesheet" href="styles.css?v=ed8544b1">
 <script src="motion.js?v=fdd49e81" defer></script>
 <script src="swarm.js?v=e37504c4" defer></script>
 </head>
@@ -619,6 +619,12 @@ go.addEventListener('click',function(){
 /* El póster entero es zona de toque (pedido de Alberto 15-11 01:11: el play quedaba lejos del pulgar). Delega en el botón real:
    sigue habiendo UN solo control accesible (#fab-go; el póster es aria-hidden). Un arrastre de scroll no emite «click», así que no
    reproduce. Solo antes de arrancar: después el póster se va (is-run) y los controles de la pieza no pasan por aquí. */
+/* Con la pieza ya puesta y en pantalla, la barra flotante del Recorrido se aparta (clase en <html>; CSS en styles.css): si no,
+   quedaba encima de los controles de la pieza (Alberto 15-11 01:20). Vuelve sola al salir la pieza de pantalla. */
+if(window.IntersectionObserver){new IntersectionObserver(function(es){var v=es[es.length-1].isIntersecting;
+  document.documentElement.classList.toggle('fab-en-vista',v&&fig.classList.contains('is-on'));}).observe(fig);
+  new MutationObserver(function(){if(!fig.classList.contains('is-on'))return;var r=fig.getBoundingClientRect();
+    document.documentElement.classList.toggle('fab-en-vista',r.bottom>0&&r.top<innerHeight);}).observe(fig,{attributes:true,attributeFilter:['class']});}
 stage.addEventListener('click',function(e){
   if(state!==0||go.hidden||go.contains(e.target)||!e.target.closest||!e.target.closest('.poster'))return;
   go.click();

@@ -572,6 +572,9 @@ time,.num{font-variant-numeric:tabular-nums}
   opacity:0;visibility:hidden;transform:translate(-50%,12px);pointer-events:none;
   transition:opacity .3s var(--ease),transform .3s var(--ease),visibility 0s linear .3s}
 .swarm-hud.is-on{opacity:1;visibility:visible;transform:translate(-50%,0);pointer-events:auto;transition-delay:0s}
+/* La pieza «See it in motion» puesta y en pantalla: la barra se aparta para no tapar sus controles (index.html pone fab-en-vista) */
+.fab-en-vista .swarm-hud.is-on{opacity:0;visibility:hidden;transform:translate(-50%,12px);pointer-events:none;
+  transition:opacity .3s var(--ease),transform .3s var(--ease),visibility 0s linear .3s}
 .swarm-hud.is-final{padding-right:var(--s-4);min-height:54px}
 .swarm-hud__dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
 .swarm-hud__txt{margin-right:var(--s-1)}
