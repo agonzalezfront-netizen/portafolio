@@ -145,16 +145,24 @@ var TEXTOS = {
 /* Línea de construcción: al asomar por abajo una unidad muestra su PLANO (marco punteado y relleno tenue);
    se CONSTRUYE cuando su borde superior cruza esta línea (fracción del alto del viewport), para que el gesto
    se vea completo en el centro de la pantalla. Las unidades más altas que media pantalla usan LINEA_ALTA. */
-var LINEA = 0.65, LINEA_MOVIL = 0.70, LINEA_ALTA = 0.55;
+var LINEA = 0.65, LINEA_MOVIL = 0.85, LINEA_ALTA = 0.55;
 /* La línea real de cada unidad depende de su alto: se construye cuando su CENTRO llega a CENTRO_OBRA de la pantalla
    (así la obra cae en el centro y no en la franja baja), sin pasar de LINEA / LINEA_MOVIL / LINEA_ALTA ni subir de
    LINEA_MIN (las muy altas empiezan con el borde superior a ~12 %). Las últimas unidades de la página, que no llegan a
    esa línea, se construyen cuando llegan a su posición final (al terminar el scroll). Afinables aquí. */
 var CENTRO_OBRA = 0.65, LINEA_MIN = 0.12;
+/* Teléfono (< 768 px): la obra se ve más abajo (pedido de Alberto 15-11 00:57, «bajarla un 15 %»): el centro de la unidad
+   llega a CENTRO_OBRA_MOVIL (antes 0.65, el mismo de escritorio; +0.15 del alto visible). Para que ninguna quede bajo la
+   barra del Recorrido ni cortada por abajo, su borde inferior no baja de OBRA_PISO_MOVIL px sobre el borde de la pantalla
+   (la barra ocupa ~66 px + aire). Nunca queda más arriba que con la regla anterior. LINEA_MOVIL subió de 0.70 a 0.85 con ella. */
+var CENTRO_OBRA_MOVIL = 0.80, OBRA_PISO_MOVIL = 96;
 // fracción del viewport donde se construye una unidad de alto hu (la usan el motor y los tramos lentos del Tour)
 function lineaFrac(hu, vh, mobile) {
   var cap = hu > vh * 0.5 ? LINEA_ALTA : mobile ? LINEA_MOVIL : LINEA;
-  return Math.max(LINEA_MIN, Math.min(cap, CENTRO_OBRA - hu / vh / 2));
+  var base = Math.max(LINEA_MIN, Math.min(cap, CENTRO_OBRA - hu / vh / 2));
+  if (!mobile) return base;
+  var baja = Math.min(LINEA_MOVIL, CENTRO_OBRA_MOVIL - hu / vh / 2, 1 - (OBRA_PISO_MOVIL + hu) / vh);
+  return Math.max(base, baja);
 }
 /* Ritmo corto para las unidades que se arman al bajar (la intro usa RITMO tal cual).
    Peor caso ≈ viaje 150 + anclaje 50 + marco 150 + espera 140 + contenido 240 = 730 ms < plazo. */
@@ -178,7 +186,6 @@ var RITMO_BAJANDO = {
   };
   var narrow = window.matchMedia ? window.matchMedia('(max-width: 479px)') : { matches: window.innerWidth < 480 };
 
-  var fine = window.matchMedia ? window.matchMedia('(pointer: fine)') : { matches: true };
   var eng = null, bar = null, invite = null, final = null, finalArgs = null;
   function finalText() { return finalArgs ? tpl(S.final, { n: finalArgs.n, s: (finalArgs.ms / 1000).toFixed(1).replace('.', S.decimal) }) : null; }
   /* [portafolio] cambio de idioma del sitio (i18n.js avisa «site:lang»): la barra y la invitación se repintan en el idioma nuevo */
@@ -255,8 +262,8 @@ var RITMO_BAJANDO = {
   }
 
   /* ---------- Etapa de inicio ----------
-     En reposo hasta que el visitante decide: botón «Take the tour · ~N s» (el único camino en táctil) y enlace
-     «Scroll on my own». Atajos: en escritorio (puntero fino) un clic en la etapa fuera de enlaces y botones inicia el
+     En reposo hasta que el visitante decide: botón «Take the tour · ~N s» y enlace
+     «Scroll on my own». Atajos: un clic o un toque en la etapa fuera de enlaces y botones inicia el
      Tour; bajar por su cuenta (rueda, arrastre, teclas de scroll, barra de desplazamiento) o llevar el foco a la página
      entra sin Tour. La órbita frena y queda quieta sola a los INICIO.quieto ms. */
   function stage() {
@@ -374,13 +381,13 @@ var RITMO_BAJANDO = {
     if (!tour.on || tour.paused || tour.reached) return;
     if (userScrolls(e)) tourPause(true);
   }
-  // Atajo de escritorio: un clic con puntero fino en la etapa (fuera de enlaces y botones) inicia el Tour.
-  // En táctil un toque no hace nada (suele ser el comienzo de un arrastre): solo el botón inicia.
+  // Un clic o un TOQUE en la etapa (fuera de enlaces y botones) inicia el Tour, en escritorio y en teléfono.
+  // Un arrastre no llega aquí: el navegador no emite «click» cuando el dedo se movió para hacer scroll
+  // (ese caso lo atiende gesture() como «bajar por mi cuenta», sin Tour). [toque-inicio 15-11]
   function onStageClick(e) {
     if (!inStage || inBar(e) || !e.detail) return; // !detail: clic sintético de teclado, lo maneja su propio control
     // lo que está bajo el negro no se ve: ningún clic o toque lo activa mientras dura la etapa
     e.preventDefault(); e.stopPropagation();
-    if (!fine.matches || e.pointerType === 'touch' || e.pointerType === 'pen') return;
     enter(true);
   }
   // El foco de teclado sale de la invitación hacia la página (Tab): entra sin Tour, para que lo enfocado se vea

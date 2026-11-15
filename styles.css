@@ -587,7 +587,7 @@ time,.num{font-variant-numeric:tabular-nums}
 .swarm-hud.is-paused .swarm-hud__st{color:var(--warn)}
 .swarm-hud.is-paused .swarm-hud__dot{background:var(--warn)}
 /* Etapa de inicio en reposo: el Tour empieza solo si el visitante lo pide. El negro recibe el clic (atajo de escritorio). */
-/* Solo con puntero fino: en táctil el negro deja pasar el arrastre a la página (el toque no hace nada; lo filtra swarm.js) */
+/* Solo con puntero fino: en táctil el negro deja pasar el arrastre a la página; el toque igual inicia el Tour (swarm.js, onStageClick) */
 @media (pointer:fine){.sw-stage::before{pointer-events:auto;cursor:pointer}}
 .swarm-invite{position:fixed;z-index:70;left:50%;bottom:calc(var(--s-7) + env(safe-area-inset-bottom,0px));
   display:flex;flex-direction:column;align-items:center;gap:var(--s-2);width:max-content;max-width:calc(100vw - 2 * var(--gutter));
