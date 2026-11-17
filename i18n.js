@@ -180,6 +180,8 @@
     // acciones al pie de cada caso (los dominios kocino.cl/demo y pulsed.cl no se traducen)
     ['case.demo', 'See the live demo', 'Ver la demo'],
     ['case.site', 'Visit the site', 'Ver el sitio'],
+    ['case.menu', 'See the customer menu', 'Ver la carta del cliente'],
+    ['case.panel', 'See the owner panel', 'Ver el panel del dueño'],
     ['case.newtab', '(opens in a new tab)', '(se abre en una pestaña nueva)'],
     ['case.private', 'Private tool: no public demo.', 'Herramienta privada: no tiene demo pública.'],
     ['c3.role', 'Product and UX/UI design, part of the front end', 'Diseño de producto y UX/UI, parte del front end'],
